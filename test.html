@@ -521,7 +521,7 @@
                                             <option value="9">9年級</option>
                                             <option value="custom">自訂</option>
                                         </select>
-                                        <select id="setClassNum" style="flex: 1;"><option value="01">甲班</option><option value="02">乙班</option><option value="03">丙班</option><option value="04">丁班</option><option value="05">戊班</option><option value="06">己班</option></select>
+                                        <select id="setClassNum" style="flex: 1;"><option value="甲">甲班</option><option value="乙">乙班</option><option value="丙">丙班</option><option value="丁">丁班</option><option value="戊">戊班</option><option value="己">己班</option></select>
                                         <input type="text" id="setCustomClassName" style="flex: 1; display: none;" placeholder="例：特教班">
                                     </div>
                                 </div>
@@ -1776,72 +1776,73 @@
     }
 
     function saveSettings() {
-        appData.schoolName = document.getElementById("setSchoolName").value.trim() || "鳳甲國中";
-        appData.academicYear = document.getElementById("setAcademicYear").value;
-        appData.semester = document.getElementById("setSemester").value;
-        
-        var examSelectVal = document.getElementById("setExam").value;
-        if (examSelectVal === "custom") {
-            appData.examType = document.getElementById("setCustomExamName").value.trim() || "自訂考試";
-            appData.examOption = "custom";
-        } else {
-            appData.examType = examSelectVal;
-            appData.examOption = examSelectVal;
-        }
-        
-        // 自動合併新的大標題
-        appData.mainTitle = appData.schoolName + " " + appData.academicYear + appData.semester + appData.examType;
-        
-        appData.grade = document.getElementById("setGrade").value;
-        appData.classNum = document.getElementById("setClassNum").value;
-        appData.customClassName = document.getElementById("setCustomClassName").value.trim() || "自訂班級";
-        
-        if (appData.isCustomClass) {
-            appData.className = appData.customClassName;
-        } else {
-            // 新的邏輯：檢查班級是否為甲乙丙丁，若是則直接顯示，不用補零
-            var classDisplay = appData.classNum;
-            // 只要不是數字（例如是甲乙丙丁），就直接顯示該字串
-            if (isNaN(classDisplay)) {
-                appData.className = appData.grade + "年" + classDisplay + "班";
-            } else {
-                // 如果是數字，才補上 0 避免出現 1 年 1 班的情況
-                var num = parseInt(classDisplay);
-                appData.className = appData.grade + "年" + (num < 10 ? "0" + num : num) + "班";
-            }
-        }
-        
-        for (var i = 1; i <= appData.totalDays; i++) {
-            var dateEl = document.getElementById("setDateDay" + i);
-            if (dateEl) {
-                appData.examDates[i] = dateEl.value;
-            }
-        }
-
-        appData.absentList = getListFromBox("box-absent");
-        appData.pulloutList = getListFromBox("box-pullout");
-        
-        appData.expectedCount = appData.totalSeats - appData.invalidList.length;
-        appData.absentCount = appData.absentList.length;
-        appData.pulloutCount = appData.pulloutList.length;
-        appData.actualCount = appData.expectedCount - appData.absentCount - appData.pulloutCount;
-
-        appData.teacherTips = document.getElementById("setTips").value;
-        appData.displayDay = document.getElementById("setDaySelect").value;
-
-        saveSettingsScheduleToMemory(appData.displayDay);
-
-        saveDataToStorage();
-        renderMainDisplay();
-
-        isDirty = false; // 標記為已儲存
-        var msg = document.getElementById("saveStatusMsg");
-        msg.innerText = "✨ 設定已儲存";
-        msg.style.color = "var(--success)";
-        msg.style.opacity = 1;
-        setTimeout(function() { msg.style.opacity = 0; }, 2000);
-        setTimeout(function() { forceCloseSettings(); }, 500);
+    appData.schoolName = document.getElementById("setSchoolName").value.trim() || "鳳甲國中";
+    appData.academicYear = document.getElementById("setAcademicYear").value;
+    appData.semester = document.getElementById("setSemester").value;
+    
+    var examSelectVal = document.getElementById("setExam").value;
+    if (examSelectVal === "custom") {
+        appData.examType = document.getElementById("setCustomExamName").value.trim() || "自訂考試";
+        appData.examOption = "custom";
+    } else {
+        appData.examType = examSelectVal;
+        appData.examOption = examSelectVal;
     }
+    
+    // 更新標題
+    appData.mainTitle = appData.schoolName + " " + appData.academicYear + appData.semester + appData.examType;
+    
+    appData.grade = document.getElementById("setGrade").value;
+    appData.classNum = document.getElementById("setClassNum").value;
+    appData.customClassName = document.getElementById("setCustomClassName").value.trim() || "自訂班級";
+    
+    // 關鍵修正：處理班級名稱組合
+    if (appData.grade === "custom") {
+        appData.className = appData.customClassName;
+    } else {
+        var displayClass = appData.classNum;
+        // 如果是甲、乙、丙、丁，直接組合文字
+        if (["甲", "乙", "丙", "丁"].includes(displayClass)) {
+            appData.className = appData.grade + "年" + displayClass + "班";
+        } else {
+            // 如果是數字，才執行補零邏輯
+            var num = parseInt(displayClass);
+            var paddedNum = (num < 10) ? ("0" + num) : num;
+            appData.className = appData.grade + "年" + paddedNum + "班";
+        }
+    }
+    
+    // 處理考試日期
+    for (var i = 1; i <= appData.totalDays; i++) {
+        var dateEl = document.getElementById("setDateDay" + i);
+        if (dateEl) {
+            appData.examDates[i] = dateEl.value;
+        }
+    }
+
+    appData.absentList = getListFromBox("box-absent");
+    appData.pulloutList = getListFromBox("box-pullout");
+    
+    appData.expectedCount = appData.totalSeats - appData.invalidList.length;
+    appData.absentCount = appData.absentList.length;
+    appData.pulloutCount = appData.pulloutList.length;
+    appData.actualCount = appData.expectedCount - appData.absentCount - appData.pulloutCount;
+
+    appData.teacherTips = document.getElementById("setTips").value;
+    appData.displayDay = document.getElementById("setDaySelect").value;
+
+    saveSettingsScheduleToMemory(appData.displayDay);
+    saveDataToStorage();
+    renderMainDisplay();
+
+    isDirty = false;
+    var msg = document.getElementById("saveStatusMsg");
+    msg.innerText = "✨ 設定已儲存";
+    msg.style.color = "var(--success)";
+    msg.style.opacity = 1;
+    setTimeout(function() { msg.style.opacity = 0; }, 2000);
+    setTimeout(function() { forceCloseSettings(); }, 500);
+}
 </script>
 
 <div class="version-info">
