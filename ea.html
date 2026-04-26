@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>嶺東高中國中部 - 段考助手 4.2</title>
+    <title>嶺東高中國中部 - 段考助手 4.3</title>
     <style>
         :root {
             --bg-body: #F0F4F8;
@@ -18,6 +18,8 @@
             --header-bg: #2C3E50;
             --seat-bg: #FFFFFF;
             --note-bg: #FFF5F5;
+            /* 根據圖片提取的亮色模式科目顏色 */
+            --subject-color: #DE5B49; 
         }
 
         [data-theme="dark"] {
@@ -33,6 +35,8 @@
             --header-bg: #000000;
             --seat-bg: #2D2D2D;
             --note-bg: #3D2B2B;
+            /* 根據圖片提取的暗色模式科目顏色 (鮭魚粉) */
+            --subject-color: #E37A6A; 
         }
 
         * { box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; transition: background 0.2s, color 0.2s; }
@@ -49,7 +53,8 @@
         }
 
         .dashboard { 
-            display: grid; grid-template-columns: 1.1fr 2.3fr 1fr; 
+            /* 稍微拉寬左邊面板(1.3fr)，以容納變大的考程表字體 */
+            display: grid; grid-template-columns: 1.3fr 2.2fr 1.1fr; 
             gap: 20px; padding: 20px; height: calc(100vh - 60px); 
         }
 
@@ -60,7 +65,7 @@
         #date-display { font-size: 1.8rem; color: var(--text-sub); margin-bottom: 5px; font-weight: bold; }
         
         #clock { 
-            font-size: clamp(8rem, 13vw, 14rem); 
+            font-size: clamp(8rem, 12vw, 14rem); 
             font-weight: 900; 
             color: var(--time-color); 
             margin: 5px 0; 
@@ -69,7 +74,6 @@
             letter-spacing: -2px; 
         }
         
-        /* 考試中標籤再放大 */
         #status-badge { font-size: 3rem; margin-top: 25px; padding: 15px 50px; border-radius: 50px; color: white; font-weight: bold; }
 
         .stats-container { display: flex; justify-content: space-around; width: 100%; margin-top: 30px; border-top: 1px dashed var(--border); padding-top: 20px; }
@@ -80,10 +84,10 @@
         .list-container { margin-top: 15px; font-size: 1.4rem; font-weight: bold; min-height: 2.5em; }
         #class-display { margin-top: 15px; font-size: 2.2rem; font-weight: bold; color: var(--accent); background: rgba(52, 152, 219, 0.1); padding: 5px 35px; border-radius: 30px; }
 
-        /* 左邊考程 & 叮嚀 (字體全面加大) */
+        /* 左邊考程 & 叮嚀 */
         .schedule-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .schedule-table td { padding: 15px 10px; border-bottom: 1px solid var(--border); text-align: center; }
-        .active-exam { background: rgba(52, 152, 219, 0.1); border-left: 6px solid var(--accent); }
+        .schedule-table td { padding: 18px 5px; border-bottom: 1px solid var(--border); text-align: center; }
+        .active-exam { background: rgba(52, 152, 219, 0.1); border-left: 8px solid var(--accent); }
         #note-box { margin-top: auto; padding: 15px; background: var(--note-bg); border-radius: 12px; border-left: 4px solid var(--time-color); max-height: 200px; overflow-y: auto; }
 
         /* 右邊座位 */
@@ -180,13 +184,13 @@
         school: "嶺東高中國中部 段考", className: "901班",
         reminders: "1. 手機關機放書包\n2. 桌面清空\n3. 名字座號要寫對",
         grid: { r: 6, c: 6 },
-        schedule: [{ t: "08:35 - 09:25", s: "國文" }, { t: "10:45 - 11:45", s: "數學" }],
+        schedule: [{ t: "08:35 - 09:25", s: "作文" }, { t: "09:40 - 10:30", s: "自習" }, { t: "10:45 - 11:45", s: "數學" }],
         seats: Array.from({length: 36}, (_, i) => ({ active: true, label: (i+1).toString(), status: 0 })),
         theme: 'light'
     };
 
     function init() {
-        const saved = localStorage.getItem('LingTung_v8');
+        const saved = localStorage.getItem('LingTung_v9');
         if (saved) {
             appData = JSON.parse(saved);
             appData.seats.forEach(s => { if (s.status === undefined) s.status = s.isAbsent ? 1 : 0; });
@@ -204,8 +208,8 @@
         const sBody = document.getElementById('display-schedule');
         sBody.innerHTML = appData.schedule.map((item, i) => `
             <tr id="exam-row-${i}">
-                <td style="color:var(--text-sub); width:45%; font-size:1.3rem;">${item.t}</td>
-                <td style="font-size:2rem; font-weight:900; color:var(--text-main);">${item.s}</td>
+                <td style="color:var(--text-sub); width:50%; font-size:clamp(1.2rem, 2vw, 2.2rem); font-weight:bold; letter-spacing:-1px;">${item.t}</td>
+                <td style="font-size:clamp(2rem, 3.5vw, 3.5rem); font-weight:900; color:var(--subject-color);">${item.s}</td>
             </tr>
         `).join('');
 
@@ -246,7 +250,7 @@
 
     function updateSeatLabel(idx, val) { appData.seats[idx].label = val; saveToLocal(); updateUI(); }
     function toggleStatus(idx) { appData.seats[idx].status = (appData.seats[idx].status + 1) % 3; updateUI(); saveToLocal(); }
-    function saveToLocal() { localStorage.setItem('LingTung_v8', JSON.stringify(appData)); }
+    function saveToLocal() { localStorage.setItem('LingTung_v9', JSON.stringify(appData)); }
 
     function toggleEyeCare() {
         const isDark = document.body.hasAttribute('data-theme');
