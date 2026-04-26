@@ -1796,21 +1796,20 @@
         appData.classNum = document.getElementById("setClassNum").value;
         appData.customClassName = document.getElementById("setCustomClassName").value.trim() || "自訂班級";
         
-        if (appData.grade === "custom") {
+        if (appData.isCustomClass) {
             appData.className = appData.customClassName;
         } else {
-    // 改為檢查是否為數字，若為「甲、乙、丙、丁」則直接顯示，否則維持數字補零邏輯
-    var displayClass = appData.classNum;
-    
-    // 如果選單值是甲乙丙丁，直接顯示，否則檢查是否需要補零
-    if (["甲", "乙", "丙", "丁"].includes(displayClass)) {
-        appData.className = appData.grade + "年" + displayClass + "班";
-    } else {
-        // 數字班級維持原本的補零邏輯
-        var num = parseInt(displayClass);
-        appData.className = appData.grade + "年" + (num < 10 ? "0" + num : num) + "班";
-    }
-}
+            // 新的邏輯：檢查班級是否為甲乙丙丁，若是則直接顯示，不用補零
+            var classDisplay = appData.classNum;
+            // 只要不是數字（例如是甲乙丙丁），就直接顯示該字串
+            if (isNaN(classDisplay)) {
+                appData.className = appData.grade + "年" + classDisplay + "班";
+            } else {
+                // 如果是數字，才補上 0 避免出現 1 年 1 班的情況
+                var num = parseInt(classDisplay);
+                appData.className = appData.grade + "年" + (num < 10 ? "0" + num : num) + "班";
+            }
+        }
         
         for (var i = 1; i <= appData.totalDays; i++) {
             var dateEl = document.getElementById("setDateDay" + i);
