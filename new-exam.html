@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>嶺東高中國中部 - 段考助手 8.2</title>
+    <title>嶺東高中國中部 - 段考助手 8.3</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         /* Material You 色彩系統 (M3 Baseline) */
@@ -17,9 +17,13 @@
             --md-warning-container: #FFDCC3; --md-on-warning-container: #2E1500; --md-warning-text: #E67E22;
             --md-success-container: #C4EEC0; --md-on-success-container: #002106; --md-success-text: #146C2E;
             
-            /* 咖啡色調變數 (Coffee Tonal) */
+            /* 考試中專用：咖啡色調變數 (Coffee Tonal) */
             --md-coffee-container: #EADBC8; 
             --md-on-coffee-container: #4C3A2B; 
+            
+            /* 【新增】考場叮嚀專用：更淺的燕麥色 */
+            --md-note-container: #F4EAE0;
+            --md-on-note-container: #5E4B3C;
         }
 
         [data-theme="dark"] {
@@ -32,9 +36,13 @@
             --md-warning-container: #663C00; --md-on-warning-container: #FFDCC3; --md-warning-text: #FFB77B;
             --md-success-container: #00531E; --md-on-success-container: #C4EEC0; --md-success-text: #8ED08B;
             
-            /* 深色咖啡 */
+            /* 考試中專用：深色咖啡 */
             --md-coffee-container: #5D4037; 
             --md-on-coffee-container: #EADBC8;
+            
+            /* 【新增】考場叮嚀專用：低調的可可底色 */
+            --md-note-container: #3E2D27;
+            --md-on-note-container: #D7C9C1;
         }
 
         * { 
@@ -100,8 +108,13 @@
         .active-exam { background: var(--md-coffee-container) !important; transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .active-exam td { color: var(--md-on-coffee-container) !important; font-weight: 900; }
         
-        /* 叮嚀事項咖啡色 */
-        #note-box { flex-shrink: 0; padding: 2vh; background: var(--md-coffee-container); color: var(--md-on-coffee-container); border-radius: 24px; transition: all 0.4s ease;}
+        /* 叮嚀事項改用更淺的專屬顏色 */
+        #note-box { 
+            flex-shrink: 0; padding: 2vh; 
+            background: var(--md-note-container); 
+            color: var(--md-on-note-container); 
+            border-radius: 24px; transition: all 0.4s ease;
+        }
         #display-reminders { font-size: clamp(0.9rem, 1.1vw, 1.2rem); margin-top: 1vh; line-height: 1.5; font-weight: 700; display: grid; grid-template-rows: repeat(3, auto); grid-auto-flow: column; column-gap: 1.5vw; row-gap: 8px; justify-content: start; }
 
         .blackboard { background: var(--md-outline); color: var(--md-bg); text-align: center; padding: 8px; border-radius: 16px; font-size: clamp(0.9rem, 1vw, 1.1rem); letter-spacing: 10px; font-weight: 700; margin-bottom: 1vh; }
@@ -253,8 +266,7 @@
     };
 
     function init() {
-        // 使用新的 localStorage Key，確保吃到最新設定
-        const saved = localStorage.getItem('LingTung_v22_M3_Coffee_Full'); 
+        const saved = localStorage.getItem('LingTung_v23_M3_Colors'); 
         if (saved) appData = JSON.parse(saved);
         if (appData.theme === 'dark') {
             document.body.setAttribute('data-theme', 'dark');
@@ -310,7 +322,7 @@
 
     function updateSeatLabel(idx, val) { appData.seats[idx].label = val; saveToLocal(); updateUI(); }
     function toggleStatus(idx) { appData.seats[idx].status = (appData.seats[idx].status + 1) % 3; updateUI(); saveToLocal(); }
-    function saveToLocal() { localStorage.setItem('LingTung_v22_M3_Coffee_Full', JSON.stringify(appData)); }
+    function saveToLocal() { localStorage.setItem('LingTung_v23_M3_Colors', JSON.stringify(appData)); }
 
     function toggleEyeCare() {
         const isDark = document.body.hasAttribute('data-theme');
@@ -363,7 +375,6 @@
             document.getElementById('input-school').value = appData.school;
             document.getElementById('input-class').value = appData.className;
             document.getElementById('input-reminders').value = appData.reminders;
-            // 把網格欄位與設計器復原
             document.getElementById('grid-rows').value = appData.grid.r;
             document.getElementById('grid-cols').value = appData.grid.c;
             renderLayoutDesigner();
@@ -372,7 +383,6 @@
         } else { modal.classList.remove('show'); }
     }
 
-    // 恢復的：網格設計器渲染功能
     function renderLayoutDesigner() {
         const r = parseInt(document.getElementById('grid-rows').value);
         const c = parseInt(document.getElementById('grid-cols').value);
@@ -397,14 +407,9 @@
         }
     }
 
-    // 恢復的：自動編號功能
     function autoFillNumbers() {
         let count = 1; 
-        appData.seats.forEach(s => { 
-            if(s.active) {
-                s.label = (count++).toString(); 
-            }
-        });
+        appData.seats.forEach(s => { if(s.active) { s.label = (count++).toString(); }});
         renderLayoutDesigner();
     }
 
@@ -426,13 +431,11 @@
         setTimeout(() => editor.scrollTop = editor.scrollHeight, 50);
     }
 
-    // 修改：儲存時要一併儲存網格資料
     function saveAll() {
         appData.school = document.getElementById('input-school').value;
         appData.className = document.getElementById('input-class').value;
         appData.reminders = document.getElementById('input-reminders').value;
         
-        // 儲存網格設定
         appData.grid.r = parseInt(document.getElementById('grid-rows').value);
         appData.grid.c = parseInt(document.getElementById('grid-cols').value);
         appData.seats = appData.seats.slice(0, appData.grid.r * appData.grid.c);
