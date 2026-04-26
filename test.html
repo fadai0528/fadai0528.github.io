@@ -1799,8 +1799,18 @@
         if (appData.grade === "custom") {
             appData.className = appData.customClassName;
         } else {
-            appData.className = appData.grade + "年" + appData.classNum + "班";
-        }
+    // 改為檢查是否為數字，若為「甲、乙、丙、丁」則直接顯示，否則維持數字補零邏輯
+    var displayClass = appData.classNum;
+    
+    // 如果選單值是甲乙丙丁，直接顯示，否則檢查是否需要補零
+    if (["甲", "乙", "丙", "丁"].includes(displayClass)) {
+        appData.className = appData.grade + "年" + displayClass + "班";
+    } else {
+        // 數字班級維持原本的補零邏輯
+        var num = parseInt(displayClass);
+        appData.className = appData.grade + "年" + (num < 10 ? "0" + num : num) + "班";
+    }
+}
         
         for (var i = 1; i <= appData.totalDays; i++) {
             var dateEl = document.getElementById("setDateDay" + i);
