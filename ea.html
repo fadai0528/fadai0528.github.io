@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>嶺東高中國中部 - 段考助手 3.0</title>
+    <title>嶺東高中國中部 - 段考助手 3.2</title>
     <style>
         :root {
-            /* 明亮模式變數 */
             --bg-body: #F0F4F8;
             --bg-panel: #FFFFFF;
             --text-main: #2C3E50;
@@ -15,86 +14,80 @@
             --time-color: #E74C3C;
             --border: #D1D8E0;
             --header-bg: #2C3E50;
+            --seat-bg: #FFFFFF;
+            --note-bg: #FFF5F5;
         }
 
         [data-theme="dark"] {
-            /* 護眼模式變數 */
-            --bg-body: #1A1A1A;
-            --bg-panel: #2D2D2D;
+            --bg-body: #121212;
+            --bg-panel: #1E1E1E;
             --text-main: #E0E0E0;
             --text-sub: #AAAAAA;
             --accent: #5DADE2;
             --time-color: #F1948A;
             --border: #444444;
-            --header-bg: #121212;
+            --header-bg: #000000;
+            --seat-bg: #2D2D2D;
+            --note-bg: #3D2B2B;
         }
 
-        * { box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; transition: background 0.3s, color 0.3s; }
+        * { box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; transition: background 0.2s, color 0.2s; }
         body { background-color: var(--bg-body); margin: 0; color: var(--text-main); overflow: hidden; }
 
         header {
             background: var(--header-bg);
-            padding: 0 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 60px;
-            color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            padding: 0 25px; display: flex; justify-content: space-between; align-items: center;
+            height: 60px; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .header-btns button {
             background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white;
             padding: 8px 12px; border-radius: 6px; cursor: pointer; margin-left: 8px; font-size: 0.85rem;
         }
-        .header-btns button:hover { background: var(--accent); }
 
         .dashboard { 
-            display: grid; 
-            grid-template-columns: 1fr 1.8fr 1fr; 
-            gap: 20px; padding: 20px; 
-            height: calc(100vh - 60px); 
+            display: grid; grid-template-columns: 1fr 1.8fr 1.2fr; 
+            gap: 20px; padding: 20px; height: calc(100vh - 60px); 
         }
 
         .panel { background: var(--bg-panel); border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
 
-        /* 中間：超大時間 */
+        /* 中間時間 */
         .center-panel { justify-content: center; align-items: center; text-align: center; }
-        #date-display { font-size: 1.6rem; color: var(--text-sub); margin-bottom: 5px; }
-        #clock { font-size: 8.5rem; font-weight: 900; color: var(--time-color); margin: 0; line-height: 1.1; font-family: 'Consolas', monospace; }
-        #status-badge { font-size: 1.8rem; margin-top: 25px; padding: 12px 40px; border-radius: 50px; color: white; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        #clock { font-size: 8.5rem; font-weight: 900; color: var(--time-color); margin: 5px 0; line-height: 1.1; font-family: 'Consolas', monospace; }
+        #status-badge { font-size: 1.8rem; margin-top: 20px; padding: 12px 40px; border-radius: 50px; color: white; font-weight: bold; }
 
-        /* 左邊：考程表 */
+        /* 左邊考程 & 叮嚀 */
         .schedule-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .schedule-table td { padding: 15px 10px; border-bottom: 1px solid var(--border); text-align: center; font-size: 1.2rem; color: var(--text-main); }
+        .schedule-table td { padding: 12px 10px; border-bottom: 1px solid var(--border); text-align: center; font-size: 1.1rem; }
         .active-exam { background: rgba(52, 152, 219, 0.1); border-left: 6px solid var(--accent); font-weight: bold; }
 
-        /* 右邊：座位表（適度加大版） */
-        .seating-area { width: 100%; height: 100%; display: flex; flex-direction: column; }
-        .blackboard { background: #444; color: white; text-align: center; padding: 8px; border-radius: 4px; margin-bottom: 15px; font-size: 0.9rem; letter-spacing: 5px; }
-        .seating-grid { display: grid; gap: 8px; width: 100%; flex-grow: 1; }
+        #note-box { 
+            margin-top: auto; padding: 15px; background: var(--note-bg); 
+            border-radius: 12px; border-left: 4px solid var(--time-color);
+            max-height: 180px; overflow-y: auto;
+        }
+
+        /* 右邊座位 */
+        .seating-grid { display: grid; gap: 8px; width: 100%; flex-grow: 1; margin-top: 10px; }
         .seat {
             border: 1px solid var(--border); border-radius: 8px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: var(--bg-body); color: var(--text-main);
+            background: var(--seat-bg); position: relative;
         }
         .seat.empty { visibility: hidden; }
-        .seat.absent { background-color: #E74C3C !important; color: white !important; border-color: #C0392B; }
+        .seat.absent { background-color: #E74C3C !important; color: white !important; }
         .seat input { width: 90%; text-align: center; border: none; background: transparent; font-size: 1.1rem; font-weight: bold; color: inherit; outline: none; }
-        .seat .absent-btn { font-size: 0.7rem; margin-top: 5px; cursor: pointer; background: rgba(0,0,0,0.1); padding: 2px 8px; border-radius: 4px; }
+        .seat .absent-btn { font-size: 0.65rem; margin-top: 4px; cursor: pointer; background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px; }
 
-        .stats-row { display: flex; justify-content: space-around; width: 100%; margin-top: 20px; font-size: 1rem; border-top: 1px dashed var(--border); padding-top: 15px; }
-        .stat-val { font-weight: bold; color: var(--accent); font-size: 1.2rem; }
-
-        /* Modal */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: var(--bg-panel); color: var(--text-main); width: 90%; max-width: 850px; padding: 30px; border-radius: 20px; }
+        .modal-content { background: var(--bg-panel); color: var(--text-main); width: 90%; max-width: 850px; padding: 30px; border-radius: 20px; max-height: 90vh; overflow-y: auto; }
     </style>
 </head>
 <body>
 
 <header>
-    <div id="main-title" style="font-weight:bold; font-size:1.2rem;">🏫 嶺東高中國中部</div>
+    <div id="main-title" style="font-weight:bold;">🏫 嶺東高中國中部</div>
     <div class="header-btns">
         <button onclick="toggleEyeCare()" id="eye-btn">🌙 護眼模式</button>
         <button onclick="toggleFullScreen()">🖥️ 全螢幕</button>
@@ -104,80 +97,121 @@
 
 <main class="dashboard">
     <div class="panel">
-        <h2 style="margin:0 0 10px 0; font-size:1.5rem;">📅 考程安排</h2>
+        <h2 style="margin:0 0 10px 0;">📅 考程安排</h2>
         <table class="schedule-table"><tbody id="display-schedule"></tbody></table>
-        <div style="margin-top:auto; padding:15px; background:rgba(52, 152, 219, 0.05); border-radius:12px; border-left:4px solid var(--accent);">
-            <strong style="font-size:0.9rem;">💡 考場叮嚀：</strong>
-            <div id="display-reminders" style="font-size:0.95rem; margin-top:8px; line-height:1.5;"></div>
+        <div id="note-box">
+            <strong style="color:var(--time-color); font-size:0.9rem;">💡 考場叮嚀：</strong>
+            <div id="display-reminders" style="font-size:1rem; margin-top:8px; line-height:1.5; white-space: pre-wrap;"></div>
         </div>
     </div>
 
     <div class="panel center-panel">
-        <div id="date-display">2026年04月26日</div>
+        <div id="date-display" style="font-size:1.5rem; color:var(--text-sub);"></div>
         <div id="clock">00:00:00</div>
         <div id="status-badge">載入中...</div>
-        <div class="stats-row">
-            <div>應到 <span id="stat-total" class="stat-val">0</span></div>
-            <div>實到 <span id="stat-present" class="stat-val">0</span></div>
-            <div>缺席 <span id="stat-absent" class="stat-val" style="color:var(--time-color)">0</span></div>
-            <div id="display-class" style="font-weight:bold;">班級</div>
+        <div style="display:flex; justify-content:space-around; width:100%; margin-top:25px; border-top:1px dashed var(--border); padding-top:20px;">
+            <div>應到 <span id="stat-total" style="font-weight:bold; color:var(--accent);">0</span></div>
+            <div>實到 <span id="stat-present" style="font-weight:bold; color:var(--accent);">0</span></div>
+            <div>缺席 <span id="stat-absent" style="font-weight:bold; color:var(--time-color);">0</span></div>
         </div>
     </div>
 
     <div class="panel">
-        <div class="seating-area">
-            <div class="blackboard">黑　　　板</div>
-            <div id="display-seats" class="seating-grid"></div>
-        </div>
+        <div style="background:#444; color:white; text-align:center; padding:8px; border-radius:4px; font-size:0.9rem; letter-spacing:5px;">黑　板</div>
+        <div id="display-seats" class="seating-grid"></div>
+        <div id="display-class" style="text-align:center; margin-top:15px; font-weight:bold; color:var(--text-sub);"></div>
     </div>
 </main>
 
 <div id="settingsModal" class="modal">
     <div class="modal-content">
-        <h2 style="margin-top:0">⚙ 系統配置</h2>
+        <h2>⚙ 系統配置</h2>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
             <div>
-                <label>學校/考試名稱</label><input type="text" id="input-school" style="width:100%; margin:8px 0;">
-                <label>班級</label><input type="text" id="input-class" style="width:100%; margin:8px 0;">
-                <label>叮嚀事項</label><textarea id="input-reminders" rows="4" style="width:100%; margin:8px 0;"></textarea>
-                <div id="schedule-editor" style="margin-top:10px;"></div>
-                <button onclick="addScheduleRow()" style="width:100%;">+ 新增科目</button>
+                <label>學校/考試名稱</label><input type="text" id="input-school" style="width:100%; margin:5px 0 10px; padding:8px;">
+                <label>班級</label><input type="text" id="input-class" style="width:100%; margin:5px 0 10px; padding:8px;">
+                <label>叮嚀事項 (會即時顯示在主畫面)</label>
+                <textarea id="input-reminders" rows="5" style="width:100%; margin:5px 0 10px; padding:8px;"></textarea>
+                <label>考程</label>
+                <div id="schedule-editor" style="max-height:150px; overflow-y:auto; border:1px solid #ccc; padding:5px;"></div>
+                <button onclick="addScheduleRow()" style="width:100%; margin-top:5px;">+ 新增科目</button>
             </div>
             <div style="background:rgba(0,0,0,0.05); padding:15px; border-radius:10px;">
-                <label>座位佈局 (寬 x 高)</label><br>
-                <input type="number" id="grid-cols" style="width:40px;"> x <input type="number" id="grid-rows" style="width:40px;">
-                <button onclick="renderLayoutDesigner()">更新</button>
-                <div id="layout-designer" style="display:grid; gap:3px; margin:15px 0; background:#ccc; padding:5px;"></div>
-                <button onclick="autoFillNumbers()" style="width:100%; background:#27AE60; color:white; border:none; padding:8px; border-radius:5px;">自動填入座號</button>
+                <label>座位配置 (寬 x 高)</label><br>
+                <input type="number" id="grid-cols" style="width:50px;"> x <input type="number" id="grid-rows" style="width:50px;">
+                <button onclick="renderLayoutDesigner()">重設網格</button>
+                <div id="layout-designer" style="display:grid; gap:3px; margin:15px 0; background:#999; padding:5px;"></div>
+                <button onclick="autoFillNumbers()" style="width:100%; background:#27AE60; color:white; border:none; padding:8px; border-radius:5px;">自動重編座號</button>
             </div>
         </div>
-        <button onclick="saveAll()" style="width:100%; padding:15px; margin-top:20px; background:#2C3E50; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">💾 儲存所有設定</button>
+        <button onclick="saveAll()" style="width:100%; padding:15px; margin-top:20px; background:#2C3E50; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:1.1rem;">💾 儲存並套用</button>
     </div>
 </div>
 
 <script>
     let appData = {
-        school: "嶺東高中國中部 114學年度段考",
+        school: "嶺東高中國中部 段考",
         className: "901班",
-        reminders: "1. 鐘響前收妥書本與手機\n2. 答案卡請確實塗黑\n3. 名字與座號要寫對喔！",
+        reminders: "1. 手機關機放書包\n2. 桌面清空\n3. 名字座號要寫對",
         grid: { r: 6, c: 6 },
-        schedule: [
-            { t: "08:35 - 09:25", s: "國文" },
-            { t: "10:45 - 11:45", s: "數學" }
-        ],
+        schedule: [{ t: "08:35 - 09:25", s: "國文" }, { t: "10:45 - 11:45", s: "數學" }],
         seats: Array.from({length: 36}, (_, i) => ({ active: true, label: (i+1).toString(), isAbsent: false })),
         theme: 'light'
     };
 
     function init() {
-        const saved = localStorage.getItem('LingTung_v3');
+        const saved = localStorage.getItem('LingTung_v5');
         if (saved) appData = JSON.parse(saved);
         if (appData.theme === 'dark') document.body.setAttribute('data-theme', 'dark');
         updateUI();
         startClock();
     }
 
-    // --- 護眼模式切換 ---
+    function updateUI() {
+        document.getElementById('main-title').textContent = "🏫 " + appData.school;
+        document.getElementById('display-class').textContent = appData.className;
+        // 修復：確保叮嚀正確顯示
+        document.getElementById('display-reminders').innerText = appData.reminders;
+        
+        const sBody = document.getElementById('display-schedule');
+        sBody.innerHTML = appData.schedule.map((item, i) => `
+            <tr id="exam-row-${i}">
+                <td style="color:var(--text-sub); width:45%; font-size:0.85rem;">${item.t}</td>
+                <td>${item.s}</td>
+            </tr>
+        `).join('');
+
+        const grid = document.getElementById('display-seats');
+        grid.style.gridTemplateColumns = `repeat(${appData.grid.c}, 1fr)`;
+        grid.innerHTML = '';
+        
+        let abs = 0, tot = 0;
+        appData.seats.forEach((seat, idx) => {
+            if (!seat.active) {
+                const el = document.createElement('div');
+                el.className = 'seat empty';
+                grid.appendChild(el);
+            } else {
+                tot++;
+                const el = document.createElement('div');
+                el.className = `seat ${seat.isAbsent ? 'absent' : ''}`;
+                el.innerHTML = `
+                    <input type="text" value="${seat.label}" onchange="updateSeatLabel(${idx}, this.value)">
+                    <div class="absent-btn" onclick="toggleAbsent(${idx})">${seat.isAbsent ? '缺席' : '在場'}</div>
+                `;
+                grid.appendChild(el);
+                if (seat.isAbsent) abs++;
+            }
+        });
+        document.getElementById('stat-total').textContent = tot;
+        document.getElementById('stat-absent').textContent = abs;
+        document.getElementById('stat-present').textContent = tot - abs;
+    }
+
+    function updateSeatLabel(idx, val) { appData.seats[idx].label = val; saveToLocal(); }
+    function toggleAbsent(idx) { appData.seats[idx].isAbsent = !appData.seats[idx].isAbsent; updateUI(); saveToLocal(); }
+    function saveToLocal() { localStorage.setItem('LingTung_v5', JSON.stringify(appData)); }
+
     function toggleEyeCare() {
         const isDark = document.body.hasAttribute('data-theme');
         if (isDark) {
@@ -197,47 +231,6 @@
         else document.exitFullscreen();
     }
 
-    function updateUI() {
-        document.getElementById('main-title').textContent = "🏫 " + appData.school;
-        document.getElementById('display-class').textContent = appData.className;
-        document.getElementById('display-reminders').textContent = appData.reminders;
-        
-        const sBody = document.getElementById('display-schedule');
-        sBody.innerHTML = appData.schedule.map((item, i) => `
-            <tr id="exam-row-${i}">
-                <td style="color:var(--text-sub); width:45%; font-size:0.9rem;">${item.t}</td>
-                <td>${item.s}</td>
-            </tr>
-        `).join('');
-
-        const grid = document.getElementById('display-seats');
-        grid.style.gridTemplateColumns = `repeat(${appData.grid.c}, 1fr)`;
-        grid.style.gridTemplateRows = `repeat(${appData.grid.r}, 1fr)`;
-        grid.innerHTML = '';
-        
-        let abs = 0, tot = 0;
-        appData.seats.forEach((seat, idx) => {
-            const el = document.createElement('div');
-            if (!seat.active) {
-                el.className = 'seat empty';
-            } else {
-                tot++;
-                el.className = `seat ${seat.isAbsent ? 'absent' : ''}`;
-                el.innerHTML = `
-                    <input value="${seat.label}" readonly>
-                    <div class="absent-btn" onclick="toggleAbsent(${idx})">${seat.isAbsent ? '缺席' : '在場'}</div>
-                `;
-            }
-            grid.appendChild(el);
-            if (seat.active && seat.isAbsent) abs++;
-        });
-        document.getElementById('stat-total').textContent = tot;
-        document.getElementById('stat-absent').textContent = abs;
-        document.getElementById('stat-present').textContent = tot - abs;
-    }
-
-    function toggleAbsent(idx) { appData.seats[idx].isAbsent = !appData.seats[idx].isAbsent; updateUI(); saveToLocal(); }
-
     function startClock() {
         setInterval(() => {
             const now = new Date();
@@ -251,11 +244,12 @@
         const now = new Date();
         const cur = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
         const badge = document.getElementById('status-badge');
-        let txt = "今日考程結束", cls = "#95a5a6", activeIdx = -1;
+        let txt = "考程結束", cls = "#95a5a6", activeIdx = -1;
 
         appData.schedule.forEach((s, i) => {
             const t = s.t.split('-').map(str => {
                 const p = str.trim().split(':');
+                if(p.length < 2) return 0;
                 return parseInt(p[0]) * 3600 + parseInt(p[1]) * 60;
             });
             if (cur >= t[0] && cur <= t[1]) {
@@ -265,13 +259,14 @@
             }
         });
         badge.textContent = txt; badge.style.backgroundColor = cls;
+        badge.style.color = "white";
         appData.schedule.forEach((_, i) => {
             const row = document.getElementById(`exam-row-${i}`);
             if (row) row.className = (i === activeIdx) ? 'active-exam' : '';
         });
     }
 
-    // 設定邏輯... (與先前版本一致)
+    // 設定邏輯
     function openModal() {
         document.getElementById('input-school').value = appData.school;
         document.getElementById('input-class').value = appData.className;
@@ -293,7 +288,7 @@
         while(appData.seats.length < targetLen) appData.seats.push({active:false, label:'', isAbsent:false});
         for(let i=0; i < targetLen; i++) {
             const cell = document.createElement('div');
-            cell.style = "aspect-ratio:1; border:1px solid #999; cursor:pointer;";
+            cell.style = "aspect-ratio:1; border:1px solid #666; cursor:pointer;";
             if(appData.seats[i].active) cell.style.backgroundColor = "#3498db";
             cell.onclick = () => { appData.seats[i].active = !appData.seats[i].active; cell.style.backgroundColor = appData.seats[i].active ? "#3498db" : ""; };
             container.appendChild(cell);
@@ -310,8 +305,8 @@
         const container = document.getElementById('schedule-editor');
         container.innerHTML = appData.schedule.map((s, i) => `
             <div style="display:flex; gap:5px; margin-bottom:5px;">
-                <input type="text" value="${s.t}" style="flex:1">
-                <input type="text" value="${s.s}" style="flex:1">
+                <input type="text" value="${s.t}" style="flex:1; padding:3px;">
+                <input type="text" value="${s.s}" style="flex:1; padding:3px;">
                 <button onclick="this.parentElement.remove()">✕</button>
             </div>
         `).join('');
@@ -320,7 +315,7 @@
     function addScheduleRow() {
         const div = document.createElement('div');
         div.style = "display:flex; gap:5px; margin-bottom:5px;";
-        div.innerHTML = `<input type="text" placeholder="時間" style="flex:1"><input type="text" placeholder="科目" style="flex:1"><button onclick="this.parentElement.remove()">✕</button>`;
+        div.innerHTML = `<input type="text" placeholder="時間" style="flex:1; padding:3px;"><input type="text" placeholder="科目" style="flex:1; padding:3px;"><button onclick="this.parentElement.remove()">✕</button>`;
         document.getElementById('schedule-editor').appendChild(div);
     }
 
@@ -339,8 +334,6 @@
         saveToLocal(); updateUI();
         document.getElementById('settingsModal').style.display = 'none';
     }
-
-    function saveToLocal() { localStorage.setItem('LingTung_v3', JSON.stringify(appData)); }
 
     init();
 </script>
