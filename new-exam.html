@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>嶺東高中國中部 - 段考助手 8.0</title>
+    <title>嶺東高中國中部 - 段考助手 8.2</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         /* Material You 色彩系統 (M3 Baseline) */
@@ -16,7 +16,10 @@
             --md-error-container: #FFDAD6; --md-on-error-container: #410002; --md-error-text: #BA1A1A;
             --md-warning-container: #FFDCC3; --md-on-warning-container: #2E1500; --md-warning-text: #E67E22;
             --md-success-container: #C4EEC0; --md-on-success-container: #002106; --md-success-text: #146C2E;
-            --md-active-exam: #FFE0B2;
+            
+            /* 咖啡色調變數 (Coffee Tonal) */
+            --md-coffee-container: #EADBC8; 
+            --md-on-coffee-container: #4C3A2B; 
         }
 
         [data-theme="dark"] {
@@ -28,13 +31,15 @@
             --md-error-container: #93000A; --md-on-error-container: #FFDAD6; --md-error-text: #FFB4AB;
             --md-warning-container: #663C00; --md-on-warning-container: #FFDCC3; --md-warning-text: #FFB77B;
             --md-success-container: #00531E; --md-on-success-container: #C4EEC0; --md-success-text: #8ED08B;
-            --md-active-exam: #5D4037;
+            
+            /* 深色咖啡 */
+            --md-coffee-container: #5D4037; 
+            --md-on-coffee-container: #EADBC8;
         }
 
         * { 
             box-sizing: border-box; 
             font-family: 'Noto Sans TC', "Microsoft JhengHei", sans-serif; 
-            /* 全域漸變動畫 */
             transition: background-color 0.4s cubic-bezier(0.2, 0, 0, 1), 
                         color 0.4s cubic-bezier(0.2, 0, 0, 1),
                         border-color 0.4s cubic-bezier(0.2, 0, 0, 1); 
@@ -42,17 +47,7 @@
         
         body { background-color: var(--md-bg); margin: 0; color: var(--md-on-bg); overflow-x: hidden; }
 
-        /* ====== 動畫 Keyframes ====== */
-        @keyframes fadeSlideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
         header { padding: 0 2vw; display: flex; justify-content: space-between; align-items: center; height: 70px; }
         #main-title { font-weight: 700; font-size: clamp(1.2rem, 1.8vw, 1.5rem); color: var(--md-on-bg); }
@@ -63,94 +58,69 @@
             transition: all 0.2s ease;
         }
         .header-btns button:hover { background: var(--md-outline-variant); transform: translateY(-2px); }
-        .header-btns button:active { transform: scale(0.95); } /* 點擊內縮動畫 */
+        .header-btns button:active { transform: scale(0.95); }
 
         .dashboard { display: grid; grid-template-columns: 1.6fr 2.0fr 1.0fr; gap: 1.5vw; padding: 0 1.5vw 1.5vw 1.5vw; height: calc(100vh - 70px); }
         
         .panel { 
             background: var(--md-surface); border-radius: 28px; padding: 1.8vw; display: flex; flex-direction: column; overflow: hidden; 
-            /* 進場動畫設定 */
-            opacity: 0;
-            animation: fadeSlideUp 0.7s cubic-bezier(0.2, 0, 0, 1) forwards;
+            opacity: 0; animation: fadeSlideUp 0.7s cubic-bezier(0.2, 0, 0, 1) forwards;
         }
-        /* 讓三個面板依序浮現 (Staggered Animation) */
         .panel:nth-child(1) { animation-delay: 0.1s; }
         .panel:nth-child(2) { animation-delay: 0.2s; }
         .panel:nth-child(3) { animation-delay: 0.3s; }
 
-        /* 中間面板 */
         .center-panel { align-items: center; text-align: center; justify-content: center; }
         #date-display { font-size: clamp(1.2rem, 2vw, 1.8rem); color: var(--md-on-surface-variant); font-weight: 500; }
         #clock { font-size: clamp(6rem, 10vw, 14rem); font-weight: 900; color: var(--md-primary); margin: 1vh 0; line-height: 1; font-family: 'Consolas', monospace; letter-spacing: -4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        
         #status-badge { 
             font-size: clamp(1.8rem, 3.5vw, 3.2rem); margin-top: 2vh; padding: 1.5vh 3vw; border-radius: 100px; 
-            background: var(--md-primary-container); color: var(--md-on-primary-container); font-weight: 700; white-space: nowrap; 
+            background: var(--md-surface-variant); color: var(--md-on-surface-variant); font-weight: 700; white-space: nowrap; 
             transition: all 0.5s cubic-bezier(0.2, 0, 0, 1);
         }
 
         .stats-container { display: flex; justify-content: space-around; width: 100%; margin-top: 4vh; }
         .stat-box { display: flex; flex-direction: column; align-items: center; background: var(--md-bg); padding: 1.5vh 2vw; border-radius: 20px; flex: 1; margin: 0 0.5vw; transition: transform 0.3s; }
-        .stat-box:hover { transform: translateY(-4px); } /* 懸浮微動效 */
+        .stat-box:hover { transform: translateY(-4px); }
         .stat-label { font-size: clamp(1rem, 1.2vw, 1.2rem); color: var(--md-on-surface-variant); font-weight: 500; }
         .stat-number { font-size: clamp(2rem, 3vw, 3rem); font-weight: 700; margin-top: 5px; line-height: 1; }
         
         .list-container { margin-top: 2.5vh; font-size: clamp(1.2rem, 1.5vw, 1.4rem); font-weight: 700; min-height: 2.5em; }
         #class-display { margin-top: 2vh; font-size: clamp(1.5rem, 2vw, 2.2rem); font-weight: 700; color: var(--md-on-primary-container); background: var(--md-primary-container); padding: 8px 40px; border-radius: 100px; }
 
-        /* 左側考程 */
         .schedule-wrapper { flex-grow: 1; overflow-y: auto; min-height: 0; margin-bottom: 2vh; padding-right: 5px; }
         .schedule-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; table-layout: fixed; }
         .schedule-table tr { border-radius: 16px; background: var(--md-bg); transition: all 0.4s ease; }
-        .schedule-table td { padding: 2vh 1vw; text-align: center; transition: color 0.4s ease; }
+        .schedule-table td { padding: 2vh 1vw; text-align: center; }
         .schedule-table td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
         .schedule-table td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
         
-        /* 考試進行中加入呼吸燈動畫 */
-        .active-exam { background: var(--md-active-exam) !important; transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        [data-theme="dark"] .active-exam { box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-        .active-exam td { color: var(--md-on-bg) !important; }
+        /* 考試中咖啡色 */
+        .active-exam { background: var(--md-coffee-container) !important; transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .active-exam td { color: var(--md-on-coffee-container) !important; font-weight: 900; }
         
-        #note-box { flex-shrink: 0; padding: 2vh; background: var(--md-primary-container); color: var(--md-on-primary-container); border-radius: 24px; }
-        #display-reminders { font-size: clamp(0.9rem, 1.1vw, 1.2rem); margin-top: 1vh; line-height: 1.5; font-weight: 500; display: grid; grid-template-rows: repeat(3, auto); grid-auto-flow: column; column-gap: 1.5vw; row-gap: 8px; justify-content: start; }
+        /* 叮嚀事項咖啡色 */
+        #note-box { flex-shrink: 0; padding: 2vh; background: var(--md-coffee-container); color: var(--md-on-coffee-container); border-radius: 24px; transition: all 0.4s ease;}
+        #display-reminders { font-size: clamp(0.9rem, 1.1vw, 1.2rem); margin-top: 1vh; line-height: 1.5; font-weight: 700; display: grid; grid-template-rows: repeat(3, auto); grid-auto-flow: column; column-gap: 1.5vw; row-gap: 8px; justify-content: start; }
 
-        /* 右側座位網格 */
         .blackboard { background: var(--md-outline); color: var(--md-bg); text-align: center; padding: 8px; border-radius: 16px; font-size: clamp(0.9rem, 1vw, 1.1rem); letter-spacing: 10px; font-weight: 700; margin-bottom: 1vh; }
         .seating-grid { display: grid; gap: 8px; width: 100%; flex-grow: 1; }
-        
-        .seat { 
-            border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            background: var(--md-bg); position: relative; min-height: 0; border: 1px solid var(--md-outline-variant); 
-            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1); /* 平滑過渡 */
-        }
-        .seat:active { transform: scale(0.92); } /* 座位點擊內縮動畫 */
+        .seat { border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--md-bg); position: relative; border: 1px solid var(--md-outline-variant); transition: all 0.3s cubic-bezier(0.2, 0, 0, 1); }
+        .seat:active { transform: scale(0.92); }
         .seat.empty { visibility: hidden; }
         .seat.absent { background-color: var(--md-error-container) !important; color: var(--md-on-error-container) !important; border-color: transparent; }
         .seat.pullout { background-color: var(--md-warning-container) !important; color: var(--md-on-warning-container) !important; border-color: transparent; }
-        
         .seat input { width: 90%; text-align: center; border: none; background: transparent; font-size: clamp(1rem, 1.3vw, 1.4rem); font-weight: 700; color: inherit; outline: none; }
-        .seat .status-btn { font-size: clamp(0.6rem, 0.8vw, 0.75rem); margin-top: 4px; cursor: pointer; background: rgba(0,0,0,0.08); padding: 4px 10px; border-radius: 100px; font-weight: 500; user-select: none; transition: background 0.2s; }
-        .seat .status-btn:hover { background: rgba(0,0,0,0.15); }
-        [data-theme="dark"] .seat .status-btn { background: rgba(255,255,255,0.15); }
-        [data-theme="dark"] .seat .status-btn:hover { background: rgba(255,255,255,0.25); }
+        .seat .status-btn { font-size: clamp(0.6rem, 0.8vw, 0.75rem); margin-top: 4px; cursor: pointer; background: rgba(0,0,0,0.08); padding: 4px 10px; border-radius: 100px; font-weight: 500; user-select: none; }
 
-        /* =========== 動畫版設定視窗 (M3 Modal) =========== */
-        .modal { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0); backdrop-filter: blur(0px); 
-            z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 20px; 
-            visibility: hidden; transition: all 0.3s ease; /* 背景淡入淡出 */
-        }
+        /* 設定視窗 Modal UI */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0); backdrop-filter: blur(0px); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 20px; visibility: hidden; transition: all 0.3s ease; }
         .modal.show { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); visibility: visible; }
         
-        .modal-content { 
-            background: var(--md-surface); color: var(--md-on-bg); 
-            width: 100%; max-width: 900px; padding: 32px; border-radius: 28px; 
-            max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            /* 視窗放大進場動畫 */
-            transform: scale(0.9); opacity: 0; transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
-        }
+        .modal-content { background: var(--md-surface); color: var(--md-on-bg); width: 100%; max-width: 900px; padding: 32px; border-radius: 28px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); opacity: 0; transition: all 0.3s cubic-bezier(0.2, 0, 0, 1); }
         .modal.show .modal-content { transform: scale(1); opacity: 1; }
-        
-        .modal-title { margin-top: 0; margin-bottom: 24px; color: var(--md-primary); font-size: 1.8rem; display: flex; align-items: center; gap: 10px; }
+        .modal-title { margin-top: 0; margin-bottom: 24px; color: var(--md-primary); font-size: 1.8rem; }
 
         .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
         .setting-card { background: var(--md-bg); border: 1px solid var(--md-outline-variant); border-radius: 24px; padding: 24px; transition: transform 0.2s; }
@@ -161,21 +131,13 @@
         .m3-input-group { display: flex; flex-direction: column; margin-bottom: 16px; }
         .m3-input-group label { font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; color: var(--md-on-surface-variant); }
         
-        .m3-input {
-            background: var(--md-surface-variant); color: var(--md-on-bg);
-            border: none; border-bottom: 2px solid var(--md-outline);
-            border-radius: 8px 8px 0 0; padding: 12px 16px; outline: none; font-size: 1rem; width: 100%; transition: 0.2s;
-        }
+        .m3-input { background: var(--md-surface-variant); color: var(--md-on-bg); border: none; border-bottom: 2px solid var(--md-outline); border-radius: 8px 8px 0 0; padding: 12px 16px; outline: none; font-size: 1rem; width: 100%; transition: 0.2s; }
         .m3-input:focus { border-bottom-color: var(--md-primary); background: var(--md-primary-container); color: var(--md-on-primary-container); }
         textarea.m3-input { resize: vertical; min-height: 80px; }
 
         .schedule-row { display: flex; gap: 8px; margin-bottom: 12px; animation: fadeSlideUp 0.3s ease forwards; }
-        .icon-btn {
-            background: var(--md-error-container); color: var(--md-on-error-container); border: none;
-            border-radius: 12px; width: 44px; flex-shrink: 0; cursor: pointer; font-weight: bold; transition: 0.2s;
-        }
-        .icon-btn:hover { background: var(--md-error-text); color: white; transform: scale(1.05); }
-        .icon-btn:active { transform: scale(0.9); }
+        .icon-btn { background: var(--md-error-container); color: var(--md-on-error-container); border: none; border-radius: 12px; width: 44px; flex-shrink: 0; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .icon-btn:hover { background: var(--md-error-text); color: white; }
 
         .grid-controls { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; background: var(--md-surface-variant); padding: 16px; border-radius: 16px; }
         .grid-controls .m3-input { width: 70px; text-align: center; padding: 8px; border-radius: 8px; border: 1px solid var(--md-outline); background: var(--md-bg); }
@@ -190,15 +152,11 @@
         .m3-btn.text:hover { background: var(--md-surface-variant); }
         .m3-btn.tonal { background: var(--md-secondary-container, #E8DEF8); color: var(--md-on-secondary-container, #1D192B); width: 100%; }
         [data-theme="dark"] .m3-btn.tonal { background: #4A4458; color: #E8DEF8; }
-        .m3-btn.tonal:hover { filter: brightness(0.95); }
         .m3-btn.success { background: var(--md-success-container); color: var(--md-on-success-container); }
-        .m3-btn.success:hover { filter: brightness(0.95); }
 
         @media (max-width: 1024px) {
-            .dashboard { grid-template-columns: 1fr; height: auto; overflow-y: auto; }
-            body { overflow-y: auto; }
+            .dashboard { grid-template-columns: 1fr; height: auto; }
             .panel { min-height: 40vh; margin-bottom: 20px; }
-            .modal-content { padding: 20px; }
             .settings-grid { grid-template-columns: 1fr; }
         }
     </style>
@@ -295,8 +253,9 @@
     };
 
     function init() {
-        const saved = localStorage.getItem('LingTung_v20_M3_Anim'); 
-        if (saved) { appData = JSON.parse(saved); }
+        // 使用新的 localStorage Key，確保吃到最新設定
+        const saved = localStorage.getItem('LingTung_v22_M3_Coffee_Full'); 
+        if (saved) appData = JSON.parse(saved);
         if (appData.theme === 'dark') {
             document.body.setAttribute('data-theme', 'dark');
             document.getElementById('eye-btn').textContent = "☀️ 明亮模式";
@@ -307,16 +266,14 @@
     function updateUI() {
         document.getElementById('main-title').textContent = "🏫 " + appData.school;
         document.getElementById('class-display').textContent = appData.className;
-        
         const reminderLines = appData.reminders.split('\n').filter(line => line.trim() !== '');
         document.getElementById('display-reminders').innerHTML = reminderLines.map(line => `<div>${line}</div>`).join('');
         
         const sBody = document.getElementById('display-schedule');
         sBody.innerHTML = appData.schedule.map((item, i) => {
             const condensedTime = item.t.replace(/\s+/g, '');
-            return `
-            <tr id="exam-row-${i}">
-                <td style="color:var(--md-on-surface-variant); width:50%; font-size:clamp(1.2rem, 2vw, 2.2rem); font-weight:700; letter-spacing:-1px; white-space: nowrap;">${condensedTime}</td>
+            return `<tr id="exam-row-${i}">
+                <td style="color:var(--md-on-surface-variant); width:50%; font-size:clamp(1.2rem, 2vw, 2.2rem); font-weight:700; white-space: nowrap;">${condensedTime}</td>
                 <td style="font-size:clamp(2rem, 3vw, 3.5rem); font-weight:900; color:var(--md-warning-text); white-space: nowrap;">${item.s}</td>
             </tr>`;
         }).join('');
@@ -336,7 +293,6 @@
                 let statusClass = '', btnText = '在場';
                 if (seat.status === 1) { statusClass = 'absent'; btnText = '缺席'; absCount++; absList.push(seat.label); }
                 else if (seat.status === 2) { statusClass = 'pullout'; btnText = '抽離'; pullCount++; pullList.push(seat.label); }
-
                 const el = document.createElement('div'); el.className = `seat ${statusClass}`;
                 el.innerHTML = `<input type="text" value="${seat.label}" onchange="updateSeatLabel(${idx}, this.value)">
                                 <div class="status-btn" onclick="toggleStatus(${idx})">${btnText}</div>`;
@@ -354,7 +310,7 @@
 
     function updateSeatLabel(idx, val) { appData.seats[idx].label = val; saveToLocal(); updateUI(); }
     function toggleStatus(idx) { appData.seats[idx].status = (appData.seats[idx].status + 1) % 3; updateUI(); saveToLocal(); }
-    function saveToLocal() { localStorage.setItem('LingTung_v20_M3_Anim', JSON.stringify(appData)); }
+    function saveToLocal() { localStorage.setItem('LingTung_v22_M3_Coffee_Full', JSON.stringify(appData)); }
 
     function toggleEyeCare() {
         const isDark = document.body.hasAttribute('data-theme');
@@ -389,40 +345,49 @@
                 if(p.length < 2) return 0;
                 return parseInt(p[0]) * 3600 + parseInt(p[1]) * 60;
             });
-            if (cur >= t[0] && cur <= t[1]) { txt = "✍️ " + s.s + " 考試中"; bg = "var(--md-primary)"; color = "var(--md-on-primary)"; activeIdx = i; } 
-            else if (cur < t[0] && activeIdx === -1) { txt = "⏳ 準備中：" + s.s; bg = "var(--md-primary-container)"; color = "var(--md-on-primary-container)"; }
+            if (cur >= t[0] && cur <= t[1]) { 
+                txt = "✍️ " + s.s + " 考試中"; 
+                bg = "var(--md-coffee-container)"; color = "var(--md-on-coffee-container)"; activeIdx = i; 
+            } 
+            else if (cur < t[0] && activeIdx === -1) { 
+                txt = "⏳ 準備中：" + s.s; bg = "var(--md-primary-container)"; color = "var(--md-on-primary-container)"; 
+            }
         });
         badge.textContent = txt; badge.style.backgroundColor = bg; badge.style.color = color;
         appData.schedule.forEach((_, i) => { const row = document.getElementById(`exam-row-${i}`); if (row) row.className = (i === activeIdx) ? 'active-exam' : ''; });
     }
 
-    /* 控制 Modal 加入/移除 .show 類別來觸發動畫 */
     function toggleModal(open) {
         const modal = document.getElementById('settingsModal');
         if (open) {
             document.getElementById('input-school').value = appData.school;
             document.getElementById('input-class').value = appData.className;
             document.getElementById('input-reminders').value = appData.reminders;
+            // 把網格欄位與設計器復原
             document.getElementById('grid-rows').value = appData.grid.r;
             document.getElementById('grid-cols').value = appData.grid.c;
-            renderLayoutDesigner(); renderScheduleEditor();
+            renderLayoutDesigner();
+            renderScheduleEditor();
             modal.classList.add('show');
-        } else {
-            modal.classList.remove('show');
-        }
+        } else { modal.classList.remove('show'); }
     }
 
+    // 恢復的：網格設計器渲染功能
     function renderLayoutDesigner() {
         const r = parseInt(document.getElementById('grid-rows').value);
         const c = parseInt(document.getElementById('grid-cols').value);
         const container = document.getElementById('layout-designer');
-        container.style.gridTemplateColumns = `repeat(${c}, minmax(30px, 1fr))`; container.innerHTML = '';
+        container.style.gridTemplateColumns = `repeat(${c}, minmax(30px, 1fr))`; 
+        container.innerHTML = '';
         const targetLen = r * c;
+        
         while(appData.seats.length < targetLen) appData.seats.push({active:false, label:'', status:0});
+        
         for(let i=0; i < targetLen; i++) {
             const cell = document.createElement('div');
             cell.style = "aspect-ratio:1; border-radius:8px; cursor:pointer; background:var(--md-outline); transition:0.2s; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);";
             if(appData.seats[i].active) cell.style.background = "var(--md-primary)";
+            
             cell.onclick = () => { 
                 appData.seats[i].active = !appData.seats[i].active; 
                 cell.style.background = appData.seats[i].active ? "var(--md-primary)" : "var(--md-outline)"; 
@@ -432,8 +397,14 @@
         }
     }
 
+    // 恢復的：自動編號功能
     function autoFillNumbers() {
-        let count = 1; appData.seats.forEach(s => { if(s.active) s.label = (count++).toString(); });
+        let count = 1; 
+        appData.seats.forEach(s => { 
+            if(s.active) {
+                s.label = (count++).toString(); 
+            }
+        });
         renderLayoutDesigner();
     }
 
@@ -451,20 +422,24 @@
         const div = document.createElement('div'); div.className = "schedule-row";
         div.innerHTML = `<input type="text" class="m3-input" placeholder="時間 (如 08:30 - 09:20)"><input type="text" class="m3-input" placeholder="科目"><button class="icon-btn" onclick="this.parentElement.remove()">✕</button>`;
         document.getElementById('schedule-editor').appendChild(div);
-        /* 滾動到最底以看到新加入的行 */
         const editor = document.getElementById('schedule-editor');
         setTimeout(() => editor.scrollTop = editor.scrollHeight, 50);
     }
 
+    // 修改：儲存時要一併儲存網格資料
     function saveAll() {
         appData.school = document.getElementById('input-school').value;
         appData.className = document.getElementById('input-class').value;
         appData.reminders = document.getElementById('input-reminders').value;
+        
+        // 儲存網格設定
         appData.grid.r = parseInt(document.getElementById('grid-rows').value);
         appData.grid.c = parseInt(document.getElementById('grid-cols').value);
+        appData.seats = appData.seats.slice(0, appData.grid.r * appData.grid.c);
+
         const rows = document.querySelectorAll('#schedule-editor .schedule-row');
         appData.schedule = Array.from(rows).map(r => { const ins = r.querySelectorAll('input'); return { t: ins[0].value, s: ins[1].value }; });
-        appData.seats = appData.seats.slice(0, appData.grid.r * appData.grid.c);
+        
         saveToLocal(); updateUI(); toggleModal(false);
     }
 
