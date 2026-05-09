@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>嶺東高中國中部 - 段考助手 8.7 (修復座位配置 + 顯示 4 節)</title>
+    <title>嶺東高中國中部 - 段考助手 8.9 (叮嚀排版修正)</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         /* Material You 色彩系統 (M3 Baseline) */
@@ -108,7 +108,6 @@
             letter-spacing: 2px;
         }
 
-        /* 💡 考程表空間配置 (可顯示約 4 節) */
         .schedule-wrapper { 
             overflow-y: auto; 
             max-height: 50vh;
@@ -133,16 +132,25 @@
             border-radius: 24px; transition: all 0.4s ease;
             display: flex; flex-direction: column;
         }
+        #reminders-title {
+            font-weight: 900;
+            margin-bottom: 1vh;
+            transition: font-size 0.3s ease;
+        }
+        /* 💡 修正 1：改用多欄排版 (column-count) 讓順序由上而下再由左至右 */
         #display-reminders { 
-            margin-top: 1.5vh; 
+            margin-top: 0.5vh; 
             line-height: 1.6; 
             font-weight: 700; 
-            display: grid; 
-            grid-template-rows: repeat(3, auto); 
-            grid-auto-flow: column; 
-            column-gap: 2vw; 
-            row-gap: 12px; 
-            justify-content: start; 
+            column-count: 2;       /* 分為兩欄 */
+            column-gap: 2vw;       /* 欄間距 */
+            width: 100%;
+        }
+        /* 💡 修正 2：避免項目被切斷 */
+        #display-reminders > div {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            margin-bottom: 12px;
         }
 
         .blackboard { background: var(--md-outline); color: var(--md-bg); text-align: center; padding: 8px; border-radius: 16px; font-size: clamp(0.9rem, 1vw, 1.1rem); letter-spacing: 10px; font-weight: 700; margin-bottom: 1vh; }
@@ -180,7 +188,6 @@
         .icon-btn { background: var(--md-error-container); color: var(--md-on-error-container); border: none; border-radius: 12px; width: 44px; flex-shrink: 0; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .icon-btn:hover { background: var(--md-error-text); color: white; }
 
-        /* 💡 復原：座位配置設定的樣式 */
         .grid-controls { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; background: var(--md-surface-variant); padding: 16px; border-radius: 16px; }
         .grid-controls .m3-input { width: 70px; text-align: center; padding: 8px; border-radius: 8px; border: 1px solid var(--md-outline); background: var(--md-bg); border-bottom: none; }
         
@@ -218,7 +225,7 @@
     <div class="panel">
         <div class="schedule-wrapper"><table class="schedule-table"><tbody id="display-schedule"></tbody></table></div>
         <div id="note-box">
-            <strong style="font-size:clamp(1.3rem, 1.8vw, 1.6rem);">💡 考場叮嚀</strong>
+            <div id="reminders-title">💡 考場叮嚀</div>
             <div id="display-reminders"></div>
         </div>
     </div>
@@ -327,6 +334,9 @@
         remindersEl.innerHTML = reminderLines.map(line => `<div>${line}</div>`).join('');
         remindersEl.style.fontSize = `${appData.remindersFontSize}rem`;
         
+        // 標題字體隨設定大小比例變化 (固定比內文大 15%)
+        document.getElementById('reminders-title').style.fontSize = `${appData.remindersFontSize * 1.15}rem`;
+        
         const sBody = document.getElementById('display-schedule');
         sBody.innerHTML = appData.schedule.map((item, i) => {
             const condensedTime = item.t.replace(/\s+/g, '');
@@ -430,7 +440,6 @@
             document.getElementById('input-reminders').value = appData.reminders;
             document.getElementById('input-reminders-size').value = appData.remindersFontSize || 1.5;
             
-            // 💡 復原：載入目前的行列數設定
             document.getElementById('grid-rows').value = appData.grid.r;
             document.getElementById('grid-cols').value = appData.grid.c;
             
@@ -440,7 +449,6 @@
         } else { modal.classList.remove('show'); }
     }
 
-    /* 💡 復原：繪製設定視窗內的互動式座位預覽網格 */
     function renderLayoutDesigner() {
         const r = parseInt(document.getElementById('grid-rows').value);
         const c = parseInt(document.getElementById('grid-cols').value);
@@ -465,7 +473,6 @@
         }
     }
 
-    /* 💡 復原：自動依序填入座號 */
     function autoFillNumbers() {
         let count = 1; 
         appData.seats.forEach(s => { if(s.active) { s.label = (count++).toString(); }});
@@ -496,7 +503,6 @@
         appData.reminders = document.getElementById('input-reminders').value;
         appData.remindersFontSize = parseFloat(document.getElementById('input-reminders-size').value) || 1.5;
         
-        // 💡 復原：儲存座位網格狀態
         appData.grid.r = parseInt(document.getElementById('grid-rows').value);
         appData.grid.c = parseInt(document.getElementById('grid-cols').value);
         appData.seats = appData.seats.slice(0, appData.grid.r * appData.grid.c);
