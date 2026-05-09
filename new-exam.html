@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>嶺東高中國中部 - 段考助手 8.3 (修正版)</title>
+    <title>嶺東高中國中部 - 段考助手 8.5 (自定義叮嚀字體大小)</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         /* Material You 色彩系統 (M3 Baseline) */
@@ -70,7 +70,6 @@
 
         .dashboard { display: grid; grid-template-columns: 1.6fr 2.0fr 1.0fr; gap: 1.5vw; padding: 0 1.5vw 1.5vw 1.5vw; height: calc(100vh - 70px); }
         
-        /* 💡 修正 1：防止內部元素撐破外框 */
         .panel { 
             background: var(--md-surface); border-radius: 28px; padding: 1.8vw; display: flex; flex-direction: column; overflow: hidden; 
             opacity: 0; animation: fadeSlideUp 0.7s cubic-bezier(0.2, 0, 0, 1) forwards;
@@ -80,45 +79,49 @@
         .panel:nth-child(2) { animation-delay: 0.2s; }
         .panel:nth-child(3) { animation-delay: 0.3s; }
 
-        /* 💡 修正 2：宣告為縮放參考容器 */
         .center-panel { align-items: center; text-align: center; justify-content: center; container-type: inline-size; }
         
-        #date-display { font-size: clamp(1.2rem, 2vw, 1.8rem); color: var(--md-on-surface-variant); font-weight: 500; }
+        #date-display { font-size: clamp(1.2rem, 2vw, 1.8rem); color: var(--md-on-surface-variant); font-weight: 500; margin-bottom: 1vh;}
         
-        /* 💡 修正 3：使用 cqw 自動縮放，完美配合版面 */
-        #clock { font-size: clamp(3rem, 16cqw, 14rem); width: 100%; font-weight: 900; color: var(--md-primary); margin: 1vh 0; line-height: 1; font-family: 'Consolas', monospace; letter-spacing: -4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        #clock { font-size: clamp(4rem, 22cqw, 18rem); width: 100%; font-weight: 900; color: var(--md-primary); margin: 0; line-height: 1; font-family: 'Consolas', monospace; letter-spacing: -4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
         
         #status-badge { 
-            font-size: clamp(1.8rem, 3.5vw, 3.2rem); margin-top: 2vh; padding: 1.5vh 3vw; border-radius: 100px; 
+            font-size: clamp(1.2rem, 2vw, 2.2rem); margin-top: 1vh; padding: 1vh 2vw; border-radius: 100px; 
             background: var(--md-surface-variant); color: var(--md-on-surface-variant); font-weight: 700; white-space: nowrap; 
             transition: all 0.5s cubic-bezier(0.2, 0, 0, 1);
         }
 
-        .stats-container { display: flex; justify-content: space-around; width: 100%; margin-top: 4vh; }
+        .stats-container { display: flex; justify-content: space-around; width: 100%; margin-top: 3vh; }
         .stat-box { display: flex; flex-direction: column; align-items: center; background: var(--md-bg); padding: 1.5vh 2vw; border-radius: 20px; flex: 1; margin: 0 0.5vw; transition: transform 0.3s; }
         .stat-box:hover { transform: translateY(-4px); }
         .stat-label { font-size: clamp(1rem, 1.2vw, 1.2rem); color: var(--md-on-surface-variant); font-weight: 500; }
         .stat-number { font-size: clamp(2rem, 3vw, 3rem); font-weight: 700; margin-top: 5px; line-height: 1; }
         
-        .list-container { margin-top: 2.5vh; font-size: clamp(1.2rem, 1.5vw, 1.4rem); font-weight: 700; min-height: 2.5em; }
+        .list-container { margin-top: 2vh; font-size: clamp(1.2rem, 1.5vw, 1.4rem); font-weight: 700; min-height: 2.5em; }
         
         #class-display { 
-            margin-top: 2vh; 
+            margin-top: 1vh; 
             display: inline-block; 
             font-size: clamp(1.5rem, 2vw, 2.2rem); 
             font-weight: 900; 
             color: var(--md-on-primary-container); 
             background: var(--md-primary-container); 
-            padding: 10px 50px; 
+            padding: 8px 40px; 
             border-radius: 100px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             letter-spacing: 2px;
         }
 
-        .schedule-wrapper { flex-grow: 1; overflow-y: auto; min-height: 0; margin-bottom: 2vh; padding-right: 5px; }
+        .schedule-wrapper { 
+            overflow-y: auto; 
+            max-height: 38vh;
+            min-height: 0; 
+            margin-bottom: 2vh; 
+            padding-right: 5px; 
+        }
         .schedule-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; table-layout: fixed; }
         .schedule-table tr { border-radius: 16px; background: var(--md-bg); transition: all 0.4s ease; }
-        .schedule-table td { padding: 2vh 1vw; text-align: center; }
+        .schedule-table td { padding: 1.5vh 1vw; text-align: center; }
         .schedule-table td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
         .schedule-table td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
         
@@ -126,12 +129,25 @@
         .active-exam td { color: var(--md-on-coffee-container) !important; font-weight: 900; }
         
         #note-box { 
-            flex-shrink: 0; padding: 2vh; 
+            flex-grow: 1;
+            padding: 2.5vh 2vw; 
             background: var(--md-note-container); 
             color: var(--md-on-note-container); 
             border-radius: 24px; transition: all 0.4s ease;
+            display: flex; flex-direction: column;
         }
-        #display-reminders { font-size: clamp(0.9rem, 1.1vw, 1.2rem); margin-top: 1vh; line-height: 1.5; font-weight: 700; display: grid; grid-template-rows: repeat(3, auto); grid-auto-flow: column; column-gap: 1.5vw; row-gap: 8px; justify-content: start; }
+        /* 移除 CSS 中的寫死字體大小，改由 JS 動態設定 */
+        #display-reminders { 
+            margin-top: 1.5vh; 
+            line-height: 1.6; 
+            font-weight: 700; 
+            display: grid; 
+            grid-template-rows: repeat(3, auto); 
+            grid-auto-flow: column; 
+            column-gap: 2vw; 
+            row-gap: 12px; 
+            justify-content: start; 
+        }
 
         .blackboard { background: var(--md-outline); color: var(--md-bg); text-align: center; padding: 8px; border-radius: 16px; font-size: clamp(0.9rem, 1vw, 1.1rem); letter-spacing: 10px; font-weight: 700; margin-bottom: 1vh; }
         .seating-grid { display: grid; gap: 8px; width: 100%; flex-grow: 1; }
@@ -204,7 +220,10 @@
 <main class="dashboard">
     <div class="panel">
         <div class="schedule-wrapper"><table class="schedule-table"><tbody id="display-schedule"></tbody></table></div>
-        <div id="note-box"><strong style="font-size:clamp(1.1rem, 1.5vw, 1.4rem);">💡 考場叮嚀</strong><div id="display-reminders"></div></div>
+        <div id="note-box">
+            <strong style="font-size:clamp(1.3rem, 1.8vw, 1.6rem);">💡 考場叮嚀</strong>
+            <div id="display-reminders"></div>
+        </div>
     </div>
 
     <div class="panel center-panel">
@@ -242,6 +261,10 @@
                 <div class="m3-input-group"><label>考試名稱</label><input type="text" id="input-school" class="m3-input"></div>
                 <div class="m3-input-group"><label>班級</label><input type="text" id="input-class" class="m3-input"></div>
                 <div class="m3-input-group"><label>叮嚀事項</label><textarea id="input-reminders" rows="4" class="m3-input"></textarea></div>
+                <div class="m3-input-group">
+                    <label>叮嚀文字大小 (建議 1.2 ~ 2.0，預設 1.5)</label>
+                    <input type="number" id="input-reminders-size" class="m3-input" step="0.1" min="0.5" max="5.0">
+                </div>
             </div>
 
             <div class="setting-card">
@@ -275,6 +298,7 @@
     let appData = {
         school: "嶺東高中國中部 段考", className: "901班",
         reminders: "1. 手機關機放書包\n2. 桌面清空\n3. 名字座號要寫對\n4. 鐘響前請收妥書本\n5. 考試結束立即停筆",
+        remindersFontSize: 1.5, // 💡 新增：儲存文字大小的屬性
         grid: { r: 6, c: 6 },
         schedule: [{ t: "08:35 - 09:25", s: "作文" }, { t: "09:40 - 10:30", s: "自習" }, { t: "10:45 - 11:45", s: "數學" }],
         seats: Array.from({length: 36}, (_, i) => ({ active: true, label: (i+1).toString(), status: 0 })),
@@ -283,7 +307,12 @@
 
     function init() {
         const saved = localStorage.getItem('LingTung_v23_M3_Colors'); 
-        if (saved) appData = JSON.parse(saved);
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            appData = Object.assign(appData, parsed);
+            // 確保舊資料也有預設字體大小
+            if (!appData.remindersFontSize) appData.remindersFontSize = 1.5; 
+        }
         if (appData.theme === 'dark') {
             document.body.setAttribute('data-theme', 'dark');
             document.getElementById('eye-btn').textContent = "☀️ 明亮模式";
@@ -294,8 +323,12 @@
     function updateUI() {
         document.getElementById('main-title').textContent = "🏫 " + appData.school;
         document.getElementById('class-display').textContent = appData.className;
+        
+        // 💡 應用自定義字體大小到叮嚀區塊
+        const remindersEl = document.getElementById('display-reminders');
         const reminderLines = appData.reminders.split('\n').filter(line => line.trim() !== '');
-        document.getElementById('display-reminders').innerHTML = reminderLines.map(line => `<div>${line}</div>`).join('');
+        remindersEl.innerHTML = reminderLines.map(line => `<div>${line}</div>`).join('');
+        remindersEl.style.fontSize = `${appData.remindersFontSize}rem`;
         
         const sBody = document.getElementById('display-schedule');
         sBody.innerHTML = appData.schedule.map((item, i) => {
@@ -398,6 +431,9 @@
             document.getElementById('input-school').value = appData.school;
             document.getElementById('input-class').value = appData.className;
             document.getElementById('input-reminders').value = appData.reminders;
+            // 💡 顯示時載入字體大小設定
+            document.getElementById('input-reminders-size').value = appData.remindersFontSize || 1.5;
+            
             document.getElementById('grid-rows').value = appData.grid.r;
             document.getElementById('grid-cols').value = appData.grid.c;
             renderLayoutDesigner();
@@ -458,6 +494,9 @@
         appData.school = document.getElementById('input-school').value;
         appData.className = document.getElementById('input-class').value;
         appData.reminders = document.getElementById('input-reminders').value;
+        
+        // 💡 儲存字體大小 (若使用者輸入不合法的值，則退回預設 1.5)
+        appData.remindersFontSize = parseFloat(document.getElementById('input-reminders-size').value) || 1.5;
         
         appData.grid.r = parseInt(document.getElementById('grid-rows').value);
         appData.grid.c = parseInt(document.getElementById('grid-cols').value);
