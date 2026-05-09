@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>嶺東高中國中部 - 段考助手 8.5 (自定義叮嚀字體大小)</title>
+    <title>嶺東高中國中部 - 段考助手 8.7 (修復座位配置 + 顯示 4 節)</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         /* Material You 色彩系統 (M3 Baseline) */
@@ -17,11 +17,9 @@
             --md-warning-container: #FFDCC3; --md-on-warning-container: #2E1500; --md-warning-text: #E67E22;
             --md-success-container: #C4EEC0; --md-on-success-container: #002106; --md-success-text: #146C2E;
             
-            /* 考試中專用：咖啡色調變數 (Coffee Tonal) */
             --md-coffee-container: #EADBC8; 
             --md-on-coffee-container: #4C3A2B; 
             
-            /* 考場叮嚀專用：更淺的燕麥色 */
             --md-note-container: #F4EAE0;
             --md-on-note-container: #5E4B3C;
         }
@@ -36,11 +34,9 @@
             --md-warning-container: #663C00; --md-on-warning-container: #FFDCC3; --md-warning-text: #FFB77B;
             --md-success-container: #00531E; --md-on-success-container: #C4EEC0; --md-success-text: #8ED08B;
             
-            /* 考試中專用：深色咖啡 */
             --md-coffee-container: #5D4037; 
             --md-on-coffee-container: #EADBC8;
             
-            /* 考場叮嚀專用：低調的可可底色 */
             --md-note-container: #3E2D27;
             --md-on-note-container: #D7C9C1;
         }
@@ -112,9 +108,10 @@
             letter-spacing: 2px;
         }
 
+        /* 💡 考程表空間配置 (可顯示約 4 節) */
         .schedule-wrapper { 
             overflow-y: auto; 
-            max-height: 38vh;
+            max-height: 50vh;
             min-height: 0; 
             margin-bottom: 2vh; 
             padding-right: 5px; 
@@ -136,7 +133,6 @@
             border-radius: 24px; transition: all 0.4s ease;
             display: flex; flex-direction: column;
         }
-        /* 移除 CSS 中的寫死字體大小，改由 JS 動態設定 */
         #display-reminders { 
             margin-top: 1.5vh; 
             line-height: 1.6; 
@@ -184,8 +180,9 @@
         .icon-btn { background: var(--md-error-container); color: var(--md-on-error-container); border: none; border-radius: 12px; width: 44px; flex-shrink: 0; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .icon-btn:hover { background: var(--md-error-text); color: white; }
 
+        /* 💡 復原：座位配置設定的樣式 */
         .grid-controls { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; background: var(--md-surface-variant); padding: 16px; border-radius: 16px; }
-        .grid-controls .m3-input { width: 70px; text-align: center; padding: 8px; border-radius: 8px; border: 1px solid var(--md-outline); background: var(--md-bg); }
+        .grid-controls .m3-input { width: 70px; text-align: center; padding: 8px; border-radius: 8px; border: 1px solid var(--md-outline); background: var(--md-bg); border-bottom: none; }
         
         .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--md-outline-variant); }
 
@@ -261,10 +258,7 @@
                 <div class="m3-input-group"><label>考試名稱</label><input type="text" id="input-school" class="m3-input"></div>
                 <div class="m3-input-group"><label>班級</label><input type="text" id="input-class" class="m3-input"></div>
                 <div class="m3-input-group"><label>叮嚀事項</label><textarea id="input-reminders" rows="4" class="m3-input"></textarea></div>
-                <div class="m3-input-group">
-                    <label>叮嚀文字大小 (建議 1.2 ~ 2.0，預設 1.5)</label>
-                    <input type="number" id="input-reminders-size" class="m3-input" step="0.1" min="0.5" max="5.0">
-                </div>
+                <div class="m3-input-group"><label>叮嚀文字大小 (建議 1.2 ~ 2.0，預設 1.5)</label><input type="number" id="input-reminders-size" class="m3-input" step="0.1" min="0.5" max="5.0"></div>
             </div>
 
             <div class="setting-card">
@@ -298,9 +292,14 @@
     let appData = {
         school: "嶺東高中國中部 段考", className: "901班",
         reminders: "1. 手機關機放書包\n2. 桌面清空\n3. 名字座號要寫對\n4. 鐘響前請收妥書本\n5. 考試結束立即停筆",
-        remindersFontSize: 1.5, // 💡 新增：儲存文字大小的屬性
+        remindersFontSize: 1.5,
         grid: { r: 6, c: 6 },
-        schedule: [{ t: "08:35 - 09:25", s: "作文" }, { t: "09:40 - 10:30", s: "自習" }, { t: "10:45 - 11:45", s: "數學" }],
+        schedule: [
+            { t: "08:35 - 09:25", s: "作文" }, 
+            { t: "09:40 - 10:30", s: "自習" }, 
+            { t: "10:45 - 11:45", s: "數學" }, 
+            { t: "13:10 - 14:00", s: "英文" }
+        ],
         seats: Array.from({length: 36}, (_, i) => ({ active: true, label: (i+1).toString(), status: 0 })),
         theme: 'light'
     };
@@ -310,7 +309,6 @@
         if (saved) {
             const parsed = JSON.parse(saved);
             appData = Object.assign(appData, parsed);
-            // 確保舊資料也有預設字體大小
             if (!appData.remindersFontSize) appData.remindersFontSize = 1.5; 
         }
         if (appData.theme === 'dark') {
@@ -324,7 +322,6 @@
         document.getElementById('main-title').textContent = "🏫 " + appData.school;
         document.getElementById('class-display').textContent = appData.className;
         
-        // 💡 應用自定義字體大小到叮嚀區塊
         const remindersEl = document.getElementById('display-reminders');
         const reminderLines = appData.reminders.split('\n').filter(line => line.trim() !== '');
         remindersEl.innerHTML = reminderLines.map(line => `<div>${line}</div>`).join('');
@@ -431,17 +428,19 @@
             document.getElementById('input-school').value = appData.school;
             document.getElementById('input-class').value = appData.className;
             document.getElementById('input-reminders').value = appData.reminders;
-            // 💡 顯示時載入字體大小設定
             document.getElementById('input-reminders-size').value = appData.remindersFontSize || 1.5;
             
+            // 💡 復原：載入目前的行列數設定
             document.getElementById('grid-rows').value = appData.grid.r;
             document.getElementById('grid-cols').value = appData.grid.c;
+            
             renderLayoutDesigner();
             renderScheduleEditor();
             modal.classList.add('show');
         } else { modal.classList.remove('show'); }
     }
 
+    /* 💡 復原：繪製設定視窗內的互動式座位預覽網格 */
     function renderLayoutDesigner() {
         const r = parseInt(document.getElementById('grid-rows').value);
         const c = parseInt(document.getElementById('grid-cols').value);
@@ -466,6 +465,7 @@
         }
     }
 
+    /* 💡 復原：自動依序填入座號 */
     function autoFillNumbers() {
         let count = 1; 
         appData.seats.forEach(s => { if(s.active) { s.label = (count++).toString(); }});
@@ -494,10 +494,9 @@
         appData.school = document.getElementById('input-school').value;
         appData.className = document.getElementById('input-class').value;
         appData.reminders = document.getElementById('input-reminders').value;
-        
-        // 💡 儲存字體大小 (若使用者輸入不合法的值，則退回預設 1.5)
         appData.remindersFontSize = parseFloat(document.getElementById('input-reminders-size').value) || 1.5;
         
+        // 💡 復原：儲存座位網格狀態
         appData.grid.r = parseInt(document.getElementById('grid-rows').value);
         appData.grid.c = parseInt(document.getElementById('grid-cols').value);
         appData.seats = appData.seats.slice(0, appData.grid.r * appData.grid.c);
