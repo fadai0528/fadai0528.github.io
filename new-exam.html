@@ -70,17 +70,23 @@
 
         .dashboard { display: grid; grid-template-columns: 1.6fr 2.0fr 1.0fr; gap: 1.5vw; padding: 0 1.5vw 1.5vw 1.5vw; height: calc(100vh - 70px); }
         
+        /* 💡 修正 1：防止內部元素撐破外框 */
         .panel { 
             background: var(--md-surface); border-radius: 28px; padding: 1.8vw; display: flex; flex-direction: column; overflow: hidden; 
             opacity: 0; animation: fadeSlideUp 0.7s cubic-bezier(0.2, 0, 0, 1) forwards;
+            min-width: 0; 
         }
         .panel:nth-child(1) { animation-delay: 0.1s; }
         .panel:nth-child(2) { animation-delay: 0.2s; }
         .panel:nth-child(3) { animation-delay: 0.3s; }
 
-        .center-panel { align-items: center; text-align: center; justify-content: center; }
+        /* 💡 修正 2：宣告為縮放參考容器 */
+        .center-panel { align-items: center; text-align: center; justify-content: center; container-type: inline-size; }
+        
         #date-display { font-size: clamp(1.2rem, 2vw, 1.8rem); color: var(--md-on-surface-variant); font-weight: 500; }
-        #clock { font-size: clamp(6rem, 10vw, 14rem); font-weight: 900; color: var(--md-primary); margin: 1vh 0; line-height: 1; font-family: 'Consolas', monospace; letter-spacing: -4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        
+        /* 💡 修正 3：使用 cqw 自動縮放，完美配合版面 */
+        #clock { font-size: clamp(3rem, 16cqw, 14rem); width: 100%; font-weight: 900; color: var(--md-primary); margin: 1vh 0; line-height: 1; font-family: 'Consolas', monospace; letter-spacing: -4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
         
         #status-badge { 
             font-size: clamp(1.8rem, 3.5vw, 3.2rem); margin-top: 2vh; padding: 1.5vh 3vw; border-radius: 100px; 
@@ -96,7 +102,6 @@
         
         .list-container { margin-top: 2.5vh; font-size: clamp(1.2rem, 1.5vw, 1.4rem); font-weight: 700; min-height: 2.5em; }
         
-        /* 💡 修正 1：明確將班級顯示為漂亮的橢圓膠囊狀 */
         #class-display { 
             margin-top: 2vh; 
             display: inline-block; 
@@ -356,13 +361,12 @@
         }, 1000);
     }
 
-    /* 💡 修正 2：修復迴圈邏輯覆蓋問題，確保正確抓到「下一個」考科 */
     function checkStatus() {
         const now = new Date();
         const cur = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
         const badge = document.getElementById('status-badge');
         let txt = "考程結束", bg = "var(--md-surface-variant)", color = "var(--md-on-surface-variant)", activeIdx = -1;
-        let foundNext = false; // 用來阻擋後續的考程覆蓋第一順位的準備狀態
+        let foundNext = false;
 
         appData.schedule.forEach((s, i) => {
             const t = s.t.split('-').map(str => {
@@ -378,7 +382,6 @@
                 foundNext = true; 
             } 
             else if (cur < t[0] && !foundNext) { 
-                // 如果目前時間小於考試時間，且還沒抓到下一個考程，就將標籤鎖定顯示這科！
                 txt = "⏳ 準備中：" + s.s; 
                 bg = "var(--md-primary-container)"; color = "var(--md-on-primary-container)"; 
                 foundNext = true; 
