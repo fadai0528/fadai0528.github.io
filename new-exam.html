@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>嶺東高中國中部 - 段考助手 8.3</title>
+    <title>嶺東高中國中部 - 段考助手 8.3 (修正版)</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         /* Material You 色彩系統 (M3 Baseline) */
@@ -21,7 +21,7 @@
             --md-coffee-container: #EADBC8; 
             --md-on-coffee-container: #4C3A2B; 
             
-            /* 【新增】考場叮嚀專用：更淺的燕麥色 */
+            /* 考場叮嚀專用：更淺的燕麥色 */
             --md-note-container: #F4EAE0;
             --md-on-note-container: #5E4B3C;
         }
@@ -40,7 +40,7 @@
             --md-coffee-container: #5D4037; 
             --md-on-coffee-container: #EADBC8;
             
-            /* 【新增】考場叮嚀專用：低調的可可底色 */
+            /* 考場叮嚀專用：低調的可可底色 */
             --md-note-container: #3E2D27;
             --md-on-note-container: #D7C9C1;
         }
@@ -95,7 +95,20 @@
         .stat-number { font-size: clamp(2rem, 3vw, 3rem); font-weight: 700; margin-top: 5px; line-height: 1; }
         
         .list-container { margin-top: 2.5vh; font-size: clamp(1.2rem, 1.5vw, 1.4rem); font-weight: 700; min-height: 2.5em; }
-        #class-display { margin-top: 2vh; font-size: clamp(1.5rem, 2vw, 2.2rem); font-weight: 700; color: var(--md-on-primary-container); background: var(--md-primary-container); padding: 8px 40px; border-radius: 100px; }
+        
+        /* 💡 修正 1：明確將班級顯示為漂亮的橢圓膠囊狀 */
+        #class-display { 
+            margin-top: 2vh; 
+            display: inline-block; 
+            font-size: clamp(1.5rem, 2vw, 2.2rem); 
+            font-weight: 900; 
+            color: var(--md-on-primary-container); 
+            background: var(--md-primary-container); 
+            padding: 10px 50px; 
+            border-radius: 100px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            letter-spacing: 2px;
+        }
 
         .schedule-wrapper { flex-grow: 1; overflow-y: auto; min-height: 0; margin-bottom: 2vh; padding-right: 5px; }
         .schedule-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; table-layout: fixed; }
@@ -104,11 +117,9 @@
         .schedule-table td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
         .schedule-table td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
         
-        /* 考試中咖啡色 */
         .active-exam { background: var(--md-coffee-container) !important; transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .active-exam td { color: var(--md-on-coffee-container) !important; font-weight: 900; }
         
-        /* 叮嚀事項改用更淺的專屬顏色 */
         #note-box { 
             flex-shrink: 0; padding: 2vh; 
             background: var(--md-note-container); 
@@ -345,11 +356,13 @@
         }, 1000);
     }
 
+    /* 💡 修正 2：修復迴圈邏輯覆蓋問題，確保正確抓到「下一個」考科 */
     function checkStatus() {
         const now = new Date();
         const cur = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
         const badge = document.getElementById('status-badge');
         let txt = "考程結束", bg = "var(--md-surface-variant)", color = "var(--md-on-surface-variant)", activeIdx = -1;
+        let foundNext = false; // 用來阻擋後續的考程覆蓋第一順位的準備狀態
 
         appData.schedule.forEach((s, i) => {
             const t = s.t.split('-').map(str => {
@@ -357,14 +370,21 @@
                 if(p.length < 2) return 0;
                 return parseInt(p[0]) * 3600 + parseInt(p[1]) * 60;
             });
+            
             if (cur >= t[0] && cur <= t[1]) { 
                 txt = "✍️ " + s.s + " 考試中"; 
-                bg = "var(--md-coffee-container)"; color = "var(--md-on-coffee-container)"; activeIdx = i; 
+                bg = "var(--md-coffee-container)"; color = "var(--md-on-coffee-container)"; 
+                activeIdx = i; 
+                foundNext = true; 
             } 
-            else if (cur < t[0] && activeIdx === -1) { 
-                txt = "⏳ 準備中：" + s.s; bg = "var(--md-primary-container)"; color = "var(--md-on-primary-container)"; 
+            else if (cur < t[0] && !foundNext) { 
+                // 如果目前時間小於考試時間，且還沒抓到下一個考程，就將標籤鎖定顯示這科！
+                txt = "⏳ 準備中：" + s.s; 
+                bg = "var(--md-primary-container)"; color = "var(--md-on-primary-container)"; 
+                foundNext = true; 
             }
         });
+        
         badge.textContent = txt; badge.style.backgroundColor = bg; badge.style.color = color;
         appData.schedule.forEach((_, i) => { const row = document.getElementById(`exam-row-${i}`); if (row) row.className = (i === activeIdx) ? 'active-exam' : ''; });
     }
