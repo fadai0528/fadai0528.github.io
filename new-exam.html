@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>嶺東高中國中部 - 段考助手 9.2 (進階排版設定)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Material You 色彩系統 (M3 Baseline) */
+        :root {
+            --md-bg: #FDFBFF; --md-surface: #F0F4F8; --md-surface-variant: #DFE2EB;
+            --md-outline: #74777F; --md-outline-variant: #C4C6D0;
+            --md-on-bg: #1A1B1E; --md-on-surface-variant: #43474E;
+            --md-primary: #005AC1; --md-on-primary: #FFFFFF;
+            --md-primary-container: #D8E2FF; --md-on-primary-container: #001A41;
+            --md-error-container: #FFDAD6; --md-on-error-container: #410002; --md-error-text: #BA1A1A;
+            --md-warning-container: #FFDCC3; --md-on-warning-container: #2E1500; --md-warning-text: #E67E22;
+            --md-success-container: #C4EEC0; --md-on-success-container: #002106; --md-success-text: #146C2E;
+            --md-coffee-container: #EADBC8; --md-on-coffee-container: #4C3A2B; 
+            --md-note-container: #F4EAE0; --md-on-note-container: #5E4B3C;
+        }
+
+        [data-theme="dark"] {
+            --md-bg: #1A1C1E; --md-surface: #23252A; --md-surface-variant: #43474E;
+            --md-outline: #8D9199; --md-outline-variant: #43474E;
+            --md-on-bg: #E2E2E6; --md-on-surface-variant: #C4C6D0;
+            --md-primary: #AEC6FF; --md-on-primary: #002E69;
+            --md-primary-container: #004493; --md-on-primary-container: #D8E2FF;
+            --md-error-container: #93000A; --md-on-error-container: #FFDAD6; --md-error-text: #FFB4AB;
+            --md-warning-container: #663C00; --md-on-warning-container: #FFDCC3; --md-warning-text: #FFB77B;
+            --md-success-container: #00531E; --md-on-success-container: #C4EEC0; --md-success-text: #8ED08B;
+            --md-coffee-container: #5D4037; --md-on-coffee-container: #EADBC8;
+            --md-note-container: #3E2D27; --md-on-note-container: #D7C9C1;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Noto Sans TC', "Microsoft JhengHei", sans-serif; 
+            transition: background-color 0.4s cubic-bezier(0.2, 0, 0, 1), 
+                        color 0.4s cubic-bezier(0.2, 0, 0, 1),
+                        border-color 0.4s cubic-bezier(0.2, 0, 0, 1); 
+        }
+        
+        body { background-color: var(--md-bg); margin: 0; color: var(--md-on-bg); overflow-x: hidden; }
+
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        header { padding: 0 2vw; display: flex; justify-content: space-between; align-items: center; height: 70px; gap: 12px; }
+        #main-title { font-weight: 700; font-size: clamp(1.2rem, 1.8vw, 1.5rem); color: var(--md-on-bg); }
+        .header-btns { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+
+        .header-btns button {
+            background: var(--md-surface-variant); color: var(--md-on-bg); border: none; padding: 10px 20px; 
+            border-radius: 100px; cursor: pointer; font-size: clamp(0.9rem, 1vw, 1rem); font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .header-btns button:hover { background: var(--md-outline-variant); transform: translateY(-2px); }
+        .header-btns button:active { transform: scale(0.95); }
+
+        .dashboard { display: grid; grid-template-columns: 1.6fr 2.0fr 1.0fr; gap: 1.5vw; padding: 0 1.5vw 1.5vw 1.5vw; height: calc(100vh - 70px); }
+        
+        .panel { 
+            background: var(--md-surface); border-radius: 28px; padding: clamp(12px, 1.8vw, 28px); display: flex; flex-direction: column; overflow: hidden; 
+            opacity: 0; animation: fadeSlideUp 0.7s cubic-bezier(0.2, 0, 0, 1) forwards; min-width: 0; 
+            min-height: 0;
+        }
+        .panel:nth-child(1) { animation-delay: 0.1s; }
+        .panel:nth-child(2) { animation-delay: 0.2s; }
+        .panel:nth-child(3) { animation-delay: 0.3s; }
+
+        .center-panel { align-items: center; text-align: center; justify-content: center; container-type: inline-size; }
+        
+        #date-display { font-size: clamp(1.2rem, 2vw, 1.8rem); color: var(--md-on-surface-variant); font-weight: 500; margin-bottom: 1vh;}
+        
+        #clock { font-size: clamp(4rem, 22cqw, 18rem); width: 100%; font-weight: 900; color: var(--md-primary); margin: 0; line-height: 1; font-family: 'Consolas', monospace; letter-spacing: -4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        
+        #status-badge { 
+            font-size: clamp(1.2rem, 2vw, 2.2rem); margin-top: 1vh; padding: 1vh 2vw; border-radius: 100px; 
+            background: var(--md-surface-variant); color: var(--md-on-surface-variant); font-weight: 700; white-space: nowrap; 
+            transition: all 0.5s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .stats-container { display: flex; justify-content: space-around; width: 100%; margin-top: 3vh; }
+        .stat-box { display: flex; flex-direction: column; align-items: center; background: var(--md-bg); padding: 1.5vh 2vw; border-radius: 20px; flex: 1; margin: 0 0.5vw; transition: transform 0.3s; }
+        .stat-box:hover { transform: translateY(-4px); }
+        .stat-label { font-size: clamp(1rem, 1.2vw, 1.2rem); color: var(--md-on-surface-variant); font-weight: 500; }
+        .stat-number { font-size: clamp(2rem, 3vw, 3rem); font-weight: 700; margin-top: 5px; line-height: 1; }
+        
+        .list-container { margin-top: 2vh; font-size: clamp(1.2rem, 1.5vw, 1.4rem); font-weight: 700; min-height: 2.5em; }
+        
+        #class-display { 
+            margin-top: 1vh; display: inline-block; font-size: clamp(1.5rem, 2vw, 2.2rem); 
+            font-weight: 900; color: var(--md-on-primary-container); background: var(--md-primary-container); 
+            padding: 8px 40px; border-radius: 100px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); letter-spacing: 2px;
+        }
+
+        .schedule-wrapper { overflow-y: auto; max-height: 50vh; min-height: 0; margin-bottom: 2vh; padding-right: 5px; }
+        .schedule-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; table-layout: fixed; }
+        .schedule-table tr { border-radius: 16px; background: var(--md-bg); transition: all 0.4s ease; }
+        .schedule-table td { padding: 1.5vh 1vw; text-align: center; }
+        .schedule-table td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
+        .schedule-table td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
+        
+        .active-exam { background: var(--md-coffee-container) !important; transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .active-exam td { color: var(--md-on-coffee-container) !important; font-weight: 900; }
+        
+        #note-box { 
+            flex-grow: 1; padding: 2.5vh 2vw; background: var(--md-note-container); color: var(--md-on-note-container); 
+            border-radius: 24px; transition: all 0.4s ease; display: flex; flex-direction: column;
+        }
+        #reminders-title { font-weight: 900; margin-bottom: 1vh; transition: font-size 0.3s ease; }
+        #display-reminders { 
+            margin-top: 0.5vh; line-height: 1.6; font-weight: 700; width: 100%;
+            transition: column-count 0.3s ease, text-align 0.3s ease;
+        }
+        #display-reminders > div { break-inside: avoid; page-break-inside: avoid; margin-bottom: 12px; }
+
+        .blackboard { background: var(--md-outline); color: var(--md-bg); text-align: center; padding: 8px; border-radius: 16px; font-size: clamp(0.9rem, 1vw, 1.1rem); letter-spacing: 10px; font-weight: 700; margin-bottom: 1vh; }
+        .seating-grid { display: grid; gap: clamp(4px, 0.55vw, 8px); width: 100%; flex: 1 1 0; min-height: 0; overflow: hidden; }
+        .seat { border-radius: clamp(8px, 1vw, 16px); display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--md-bg); position: relative; border: 1px solid var(--md-outline-variant); transition: all 0.3s cubic-bezier(0.2, 0, 0, 1); min-width: 0; min-height: 0; overflow: hidden; }
+        .seat:active { transform: scale(0.92); }
+        .seat.empty { visibility: hidden; }
+        .seat.absent { background-color: var(--md-error-container) !important; color: var(--md-on-error-container) !important; border-color: transparent; }
+        .seat.pullout { background-color: var(--md-warning-container) !important; color: var(--md-on-warning-container) !important; border-color: transparent; }
+        .seat input { width: 90%; text-align: center; border: none; background: transparent; font-size: clamp(1rem, 1.3vw, 1.4rem); font-weight: 700; color: inherit; outline: none; }
+        .seat .status-btn { font-size: clamp(0.6rem, 0.8vw, 0.75rem); margin-top: 4px; cursor: pointer; background: rgba(0,0,0,0.08); padding: 4px 10px; border-radius: 100px; font-weight: 500; user-select: none; }
+
+        /* 設定視窗 Modal UI */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0); backdrop-filter: blur(0px); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 20px; visibility: hidden; transition: all 0.3s ease; }
+        .modal.show { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); visibility: visible; }
+        
+        .modal-content { background: var(--md-surface); color: var(--md-on-bg); width: 100%; max-width: 900px; padding: 32px; border-radius: 28px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); opacity: 0; transition: all 0.3s cubic-bezier(0.2, 0, 0, 1); }
+        .modal.show .modal-content { transform: scale(1); opacity: 1; }
+        .modal-title { margin-top: 0; margin-bottom: 24px; color: var(--md-primary); font-size: 1.8rem; }
+
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+        .setting-card { background: var(--md-bg); border: 1px solid var(--md-outline-variant); border-radius: 24px; padding: 24px; transition: transform 0.2s; }
+        .setting-card:hover { transform: translateY(-2px); }
+        .setting-card.full-width { grid-column: 1 / -1; }
+        .setting-card h3 { margin-top: 0; color: var(--md-primary); font-size: 1.2rem; margin-bottom: 16px; border-bottom: 2px solid var(--md-surface-variant); padding-bottom: 12px; }
+
+        .m3-input-group { display: flex; flex-direction: column; margin-bottom: 16px; }
+        .m3-input-group label { font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; color: var(--md-on-surface-variant); }
+        
+        .m3-input, select.m3-input { background: var(--md-surface-variant); color: var(--md-on-bg); border: none; border-bottom: 2px solid var(--md-outline); border-radius: 8px 8px 0 0; padding: 12px 16px; outline: none; font-size: 1rem; width: 100%; transition: 0.2s; }
+        .m3-input:focus, select.m3-input:focus { border-bottom-color: var(--md-primary); background: var(--md-primary-container); color: var(--md-on-primary-container); }
+        textarea.m3-input { resize: vertical; min-height: 80px; }
+
+        .schedule-row { display: flex; gap: 8px; margin-bottom: 12px; animation: fadeSlideUp 0.3s ease forwards; }
+        .schedule-row .time-input { flex: 0 0 86px; text-align: center; }
+        .schedule-row .subject-input { flex: 1 1 auto; min-width: 100px; }
+        .icon-btn { background: var(--md-error-container); color: var(--md-on-error-container); border: none; border-radius: 12px; width: 44px; flex-shrink: 0; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .icon-btn:hover { background: var(--md-error-text); color: white; }
+
+        .grid-controls { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; background: var(--md-surface-variant); padding: 16px; border-radius: 16px; }
+        .grid-controls .m3-input { width: 70px; text-align: center; padding: 8px; border-radius: 8px; border: 1px solid var(--md-outline); background: var(--md-bg); border-bottom: none; }
+        
+        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--md-outline-variant); }
+
+        .m3-btn { border: none; border-radius: 100px; padding: 12px 24px; font-weight: 700; cursor: pointer; font-size: 1rem; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; }
+        .m3-btn:active { transform: scale(0.95); }
+        .m3-btn.filled { background: var(--md-primary); color: var(--md-on-primary); }
+        .m3-btn.filled:hover { opacity: 0.9; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-2px); }
+        .m3-btn.text { background: transparent; color: var(--md-primary); }
+        .m3-btn.text:hover { background: var(--md-surface-variant); }
+        .m3-btn.tonal { background: var(--md-secondary-container, #E8DEF8); color: var(--md-on-secondary-container, #1D192B); width: 100%; }
+        [data-theme="dark"] .m3-btn.tonal { background: #4A4458; color: #E8DEF8; }
+        .m3-btn.success { background: var(--md-success-container); color: var(--md-on-success-container); }
+
+        [data-density="high-dpi"] header { height: 60px; }
+        [data-density="high-dpi"] .dashboard { height: calc(100vh - 60px); gap: 1vw; padding: 0 1vw 1vw 1vw; }
+        [data-density="high-dpi"] .panel { padding: clamp(8px, 1.1vw, 18px); border-radius: 20px; }
+        [data-density="high-dpi"] .blackboard { padding: 5px; margin-bottom: 0.7vh; border-radius: 10px; font-size: clamp(0.7rem, 0.8vw, 0.9rem); }
+        [data-density="high-dpi"] .seating-grid { gap: clamp(2px, 0.35vw, 5px); }
+        [data-density="high-dpi"] .seat { border-radius: 8px; }
+        [data-density="high-dpi"] .seat input { font-size: clamp(0.7rem, 0.95vw, 1rem); line-height: 1; }
+        [data-density="high-dpi"] .seat .status-btn { font-size: clamp(0.52rem, 0.65vw, 0.68rem); margin-top: 2px; padding: 2px 6px; line-height: 1.1; }
+        [data-density="high-dpi"] #clock { font-size: clamp(3.4rem, 18cqw, 14rem); }
+
+        @media (max-width: 1024px) {
+            .dashboard { grid-template-columns: 1fr; height: auto; }
+            .panel { min-height: 40vh; margin-bottom: 20px; }
+            .settings-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div id="main-title">🏫 嶺東高中國中部</div>
+    <div class="header-btns">
+        <button onclick="toggleDensityMode()" id="density-btn">🔍 高 DPI 模式</button>
+        <button onclick="toggleEyeCare()" id="eye-btn">🌙 深色模式</button>
+        <button onclick="toggleFullScreen()">🖥️ 全螢幕</button>
+        <button onclick="toggleModal(true)">⚙ 系統設定</button>
+    </div>
+</header>
+
+<main class="dashboard">
+    <div class="panel">
+        <div class="schedule-wrapper"><table class="schedule-table"><tbody id="display-schedule"></tbody></table></div>
+        <div id="note-box">
+            <div id="reminders-title">💡 考場叮嚀</div>
+            <div id="display-reminders"></div>
+        </div>
+    </div>
+
+    <div class="panel center-panel">
+        <div id="date-display"></div>
+        <div id="clock">00:00:00</div>
+        <div id="status-badge">載入中...</div>
+        
+        <div class="stats-container">
+            <div class="stat-box"><span class="stat-label">應到</span><span class="stat-number" id="stat-total" style="color:var(--md-primary);">0</span></div>
+            <div class="stat-box"><span class="stat-label">實到</span><span class="stat-number" id="stat-present" style="color:var(--md-success-text);">0</span></div>
+            <div class="stat-box" style="background:var(--md-error-container);"><span class="stat-label" style="color:var(--md-on-error-container);">缺席</span><span class="stat-number" id="stat-absent" style="color:var(--md-on-error-container);">0</span></div>
+            <div class="stat-box" style="background:var(--md-warning-container);"><span class="stat-label" style="color:var(--md-on-warning-container);">抽離</span><span class="stat-number" id="stat-pullout" style="color:var(--md-on-warning-container);">0</span></div>
+        </div>
+
+        <div class="list-container">
+            <div id="absent-list" style="color:var(--md-error-text);"></div>
+            <div id="pullout-list" style="color:var(--md-warning-text); margin-top: 5px;"></div>
+        </div>
+        <div id="class-display">班級</div>
+    </div>
+
+    <div class="panel">
+        <div class="blackboard">黑　板</div>
+        <div id="display-seats" class="seating-grid"></div>
+    </div>
+</main>
+
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <h2 class="modal-title">⚙ 系統設定</h2>
+        
+        <div class="settings-grid">
+            <div class="setting-card">
+                <h3>📝 基本資料</h3>
+                <div class="m3-input-group"><label>考試名稱</label><input type="text" id="input-school" class="m3-input"></div>
+                <div class="m3-input-group"><label>班級</label><input type="text" id="input-class" class="m3-input"></div>
+                <div class="m3-input-group"><label>叮嚀事項</label><textarea id="input-reminders" rows="4" class="m3-input"></textarea></div>
+                
+                <div class="m3-input-group">
+                    <label>叮嚀排版選項</label>
+                    <div style="display: flex; gap: 8px;">
+                        <select id="input-reminders-align" class="m3-input">
+                            <option value="left">靠左對齊</option>
+                            <option value="center">置中對齊</option>
+                            <option value="right">靠右對齊</option>
+                        </select>
+                        <select id="input-reminders-columns" class="m3-input">
+                            <option value="auto">自動單/雙欄</option>
+                            <option value="1">強制單欄</option>
+                            <option value="2">強制雙欄</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="m3-input-group"><label>叮嚀文字大小</label><input type="number" id="input-reminders-size" class="m3-input" step="0.1" min="0.5" max="5.0"></div>
+            </div>
+
+            <div class="setting-card">
+                <h3>🕒 考程設定</h3>
+                <div id="schedule-editor" style="max-height: 200px; overflow-y: auto; padding-right: 5px; margin-bottom: 12px;"></div>
+                <button class="m3-btn tonal" onclick="addScheduleRow()">+ 新增科目</button>
+            </div>
+
+            <div class="setting-card full-width">
+                <h3>🪑 座位與網格配置</h3>
+                <div class="grid-controls">
+                    <span style="font-weight:bold; color:var(--md-on-surface-variant);">網格大小：</span>
+                    <input type="number" id="grid-cols" class="m3-input" placeholder="寬"> 行 × 
+                    <input type="number" id="grid-rows" class="m3-input" placeholder="高"> 列
+                    <button class="m3-btn tonal" style="width:auto; margin-left:auto; padding:8px 16px;" onclick="renderLayoutDesigner()">套用重設</button>
+                    <button class="m3-btn success" style="width:auto; padding:8px 16px;" onclick="autoFillNumbers()">自動重編座號</button>
+                </div>
+                <div id="layout-designer" style="display:grid; gap:4px; padding:16px; background:var(--md-surface-variant); border-radius:16px; max-width: 100%; overflow-x: auto;"></div>
+                <div style="font-size: 0.85rem; color: var(--md-outline); margin-top: 8px; text-align: center;">💡 點擊上方方塊可隱藏/顯示該座位（隱藏通常代表走道或空位）</div>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="m3-btn text" onclick="exportSettings()">匯出設定</button>
+            <button class="m3-btn text" onclick="toggleModal(false)">取消</button>
+            <button class="m3-btn filled" onclick="saveAll()">💾 儲存並套用設定</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'LingTung_v24_M3_Layouts';
+    const MIN_GRID_SIZE = 1;
+    const MAX_GRID_SIZE = 12;
+    let clockTimerId = null;
+
+    let appData = {
+        school: "嶺東高中國中部 段考", className: "901班",
+        reminders: "1. 手機關機放書包\n2. 桌面清空\n3. 名字座號要寫對\n4. 鐘響前請收妥書本\n5. 考試結束立即停筆",
+        remindersFontSize: 1.5,
+        remindersAlign: "left",
+        remindersCols: "auto",
+        grid: { r: 6, c: 6 },
+        schedule: [
+            { t: "08:35 - 09:25", s: "作文" }, 
+            { t: "09:40 - 10:30", s: "自習" }, 
+            { t: "10:45 - 11:45", s: "數學" }, 
+            { t: "13:10 - 14:00", s: "英文" }
+        ],
+        seats: Array.from({length: 36}, (_, i) => ({ active: true, label: (i+1).toString(), status: 0 })),
+        theme: 'light',
+        density: 'normal'
+    };
+
+    function readSavedData() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return null;
+
+        try {
+            const parsed = JSON.parse(saved);
+            return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
+        } catch (error) {
+            console.warn('Saved exam settings could not be parsed. Loading defaults without deleting local data.', error);
+            return null;
+        }
+    }
+
+    function clampNumber(value, min, max, fallback) {
+        const parsed = Number.parseInt(value, 10);
+        if (!Number.isFinite(parsed)) return fallback;
+        return Math.min(max, Math.max(min, parsed));
+    }
+
+    function clampGridSize(grid, fallback = { r: 6, c: 6 }) {
+        return {
+            r: clampNumber(grid && grid.r, MIN_GRID_SIZE, MAX_GRID_SIZE, fallback.r),
+            c: clampNumber(grid && grid.c, MIN_GRID_SIZE, MAX_GRID_SIZE, fallback.c)
+        };
+    }
+
+    function normalizeSeat(seat) {
+        return {
+            active: Boolean(seat && seat.active),
+            label: seat && seat.label != null ? String(seat.label) : '',
+            status: [0, 1, 2].includes(seat && seat.status) ? seat.status : 0
+        };
+    }
+
+    function ensureSeatCount() {
+        const targetLen = appData.grid.r * appData.grid.c;
+        const seats = Array.isArray(appData.seats) ? appData.seats.map(normalizeSeat) : [];
+        while (seats.length < targetLen) seats.push({ active: false, label: '', status: 0 });
+        appData.seats = seats.slice(0, targetLen);
+    }
+
+    function normalizeAppData() {
+        appData.school = appData.school != null ? String(appData.school) : '';
+        appData.className = appData.className != null ? String(appData.className) : '';
+        appData.reminders = appData.reminders != null ? String(appData.reminders) : '';
+        appData.grid = clampGridSize(appData.grid);
+        appData.schedule = Array.isArray(appData.schedule) ? appData.schedule.map(item => ({
+            t: item && item.t != null ? String(item.t) : '',
+            s: item && item.s != null ? String(item.s) : ''
+        })) : [];
+        ensureSeatCount();
+    }
+
+    function createTextElement(tagName, text, className) {
+        const el = document.createElement(tagName);
+        if (className) el.className = className;
+        el.textContent = text == null ? '' : String(text);
+        return el;
+    }
+
+    function formatTimeInput(value) {
+        const original = value == null ? '' : String(value).trim();
+        if (!original) return '';
+
+        let digits = original.replace(/\D/g, '');
+        if (digits.length === 3) digits = digits.padStart(4, '0');
+        if (digits.length !== 4) return original;
+
+        const hour = Number.parseInt(digits.slice(0, 2), 10);
+        const minute = Number.parseInt(digits.slice(2), 10);
+        if (hour > 23 || minute > 59) return original;
+
+        return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    }
+
+    function splitScheduleTimeRange(value) {
+        const raw = value == null ? '' : String(value).trim();
+        if (!raw) return { start: '', end: '' };
+
+        const parts = raw.split('-');
+        if (parts.length >= 2) {
+            return {
+                start: formatTimeInput(parts[0]),
+                end: formatTimeInput(parts.slice(1).join('-'))
+            };
+        }
+
+        const digits = raw.replace(/\D/g, '');
+        if (digits.length === 8) {
+            return {
+                start: formatTimeInput(digits.slice(0, 4)),
+                end: formatTimeInput(digits.slice(4))
+            };
+        }
+        if (digits.length === 6) {
+            return {
+                start: formatTimeInput(digits.slice(0, 3)),
+                end: formatTimeInput(digits.slice(3))
+            };
+        }
+
+        return { start: formatTimeInput(raw), end: '' };
+    }
+
+    function buildScheduleTimeRange(start, end) {
+        const formattedStart = formatTimeInput(start);
+        const formattedEnd = formatTimeInput(end);
+        if (formattedStart && formattedEnd) return `${formattedStart} - ${formattedEnd}`;
+        return formattedStart || formattedEnd;
+    }
+
+    function buildExportFilename(date = new Date()) {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const hh = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+        return `exam-settings-${yyyy}${mm}${dd}-${hh}${min}.json`;
+    }
+
+    function init() {
+        const saved = readSavedData(); 
+        if (saved) {
+            appData = Object.assign(appData, saved);
+        }
+        if (!appData.remindersAlign) appData.remindersAlign = 'left';
+        if (!appData.remindersCols) appData.remindersCols = 'auto';
+        if (!appData.remindersFontSize) appData.remindersFontSize = 1.5; 
+        if (!appData.density) appData.density = 'normal';
+        normalizeAppData();
+
+        if (appData.theme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('eye-btn').textContent = "☀️ 明亮模式";
+        }
+        applyDensityMode();
+        updateUI(); startClock();
+    }
+
+    function updateUI() {
+        document.getElementById('main-title').textContent = "🏫 " + appData.school;
+        document.getElementById('class-display').textContent = appData.className;
+        
+        const remindersEl = document.getElementById('display-reminders');
+        const reminderLines = appData.reminders.split('\n').filter(line => line.trim() !== '');
+        remindersEl.replaceChildren();
+        reminderLines.forEach(line => remindersEl.appendChild(createTextElement('div', line)));
+        
+        // 套用排版設定
+        remindersEl.style.fontSize = `${appData.remindersFontSize}rem`;
+        remindersEl.style.textAlign = appData.remindersAlign;
+        
+        if (appData.remindersCols === '1') {
+            remindersEl.style.columnCount = 1;
+        } else if (appData.remindersCols === '2') {
+            remindersEl.style.columnCount = 2;
+            remindersEl.style.columnGap = "2vw";
+        } else {
+            // 自動模式：字體大於 1.5 才雙欄
+            if (appData.remindersFontSize > 1.5) {
+                remindersEl.style.columnCount = 2;
+                remindersEl.style.columnGap = "2vw";
+            } else {
+                remindersEl.style.columnCount = 1;
+            }
+        }
+
+        document.getElementById('reminders-title').style.fontSize = `${appData.remindersFontSize * 1.15}rem`;
+        document.getElementById('reminders-title').style.textAlign = appData.remindersAlign;
+        
+        const sBody = document.getElementById('display-schedule');
+        sBody.replaceChildren();
+        appData.schedule.forEach((item, i) => {
+            const condensedTime = item.t.replace(/\s+/g, '');
+            const row = document.createElement('tr');
+            row.id = `exam-row-${i}`;
+
+            const timeCell = createTextElement('td', condensedTime);
+            timeCell.style.cssText = "color:var(--md-on-surface-variant); width:50%; font-size:clamp(1.2rem, 2vw, 2.2rem); font-weight:700; white-space: nowrap;";
+
+            const subjectCell = createTextElement('td', item.s);
+            subjectCell.style.cssText = "font-size:clamp(2rem, 3vw, 3.5rem); font-weight:900; color:var(--md-warning-text); white-space: nowrap;";
+
+            row.append(timeCell, subjectCell);
+            sBody.appendChild(row);
+        });
+
+        const grid = document.getElementById('display-seats');
+        grid.style.gridTemplateColumns = `repeat(${appData.grid.c}, minmax(0, 1fr))`;
+        grid.style.gridTemplateRows = `repeat(${appData.grid.r}, minmax(0, 1fr))`;
+        grid.innerHTML = '';
+        
+        let absCount = 0, pullCount = 0, tot = 0;
+        let absList = [], pullList = [];
+
+        appData.seats.forEach((seat, idx) => {
+            if (!seat.active) {
+                const el = document.createElement('div'); el.className = 'seat empty'; grid.appendChild(el);
+            } else {
+                tot++;
+                let statusClass = '', btnText = '在場';
+                if (seat.status === 1) { statusClass = 'absent'; btnText = '缺席'; absCount++; absList.push(seat.label); }
+                else if (seat.status === 2) { statusClass = 'pullout'; btnText = '抽離'; pullCount++; pullList.push(seat.label); }
+                const el = document.createElement('div'); el.className = `seat ${statusClass}`;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = seat.label;
+                input.addEventListener('change', () => updateSeatLabel(idx, input.value));
+                const statusBtn = createTextElement('div', btnText, 'status-btn');
+                statusBtn.addEventListener('click', () => toggleStatus(idx));
+                el.append(input, statusBtn);
+                grid.appendChild(el);
+            }
+        });
+
+        document.getElementById('stat-total').textContent = tot;
+        document.getElementById('stat-absent').textContent = absCount;
+        document.getElementById('stat-pullout').textContent = pullCount;
+        document.getElementById('stat-present').textContent = tot - absCount - pullCount;
+        document.getElementById('absent-list').textContent = absList.length > 0 ? "缺席座號： " + absList.join(", ") : "";
+        document.getElementById('pullout-list').textContent = pullList.length > 0 ? "抽離座號： " + pullList.join(", ") : "";
+    }
+
+    function updateSeatLabel(idx, val) { appData.seats[idx].label = String(val); saveToLocal(); updateUI(); }
+    function toggleStatus(idx) { appData.seats[idx].status = (appData.seats[idx].status + 1) % 3; updateUI(); saveToLocal(); }
+    function saveToLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
+
+    function exportSettings() {
+        const payload = {
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            data: appData
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = buildExportFilename();
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
+
+    function applyDensityMode() {
+        const highDpi = appData.density === 'high-dpi';
+        document.body.toggleAttribute('data-density', highDpi);
+        if (highDpi) document.body.setAttribute('data-density', 'high-dpi');
+        const btn = document.getElementById('density-btn');
+        if (btn) btn.textContent = highDpi ? "↔ 標準模式" : "🔍 高 DPI 模式";
+    }
+
+    function toggleDensityMode() {
+        appData.density = appData.density === 'high-dpi' ? 'normal' : 'high-dpi';
+        applyDensityMode();
+        saveToLocal();
+        updateUI();
+    }
+
+    function toggleEyeCare() {
+        const isDark = document.body.hasAttribute('data-theme');
+        if (isDark) { document.body.removeAttribute('data-theme'); appData.theme = 'light'; document.getElementById('eye-btn').textContent = "🌙 深色模式"; } 
+        else { document.body.setAttribute('data-theme', 'dark'); appData.theme = 'dark'; document.getElementById('eye-btn').textContent = "☀️ 明亮模式"; }
+        saveToLocal();
+    }
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+    }
+
+    function startClock() {
+        if (clockTimerId) return;
+        clockTimerId = setInterval(() => {
+            const now = new Date();
+            document.getElementById('date-display').textContent = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 星期${["日","一","二","三","四","五","六"][now.getDay()]}`;
+            document.getElementById('clock').textContent = now.toTimeString().split(' ')[0];
+            checkStatus();
+        }, 1000);
+    }
+
+    function checkStatus() {
+        const now = new Date();
+        const cur = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+        const badge = document.getElementById('status-badge');
+        let txt = "考程結束", bg = "var(--md-surface-variant)", color = "var(--md-on-surface-variant)", activeIdx = -1;
+        let foundNext = false;
+
+        appData.schedule.forEach((s, i) => {
+            const t = s.t.split('-').map(str => {
+                const p = str.trim().split(':');
+                if(p.length < 2) return 0;
+                return parseInt(p[0]) * 3600 + parseInt(p[1]) * 60;
+            });
+            
+            if (cur >= t[0] && cur <= t[1]) { 
+                txt = "✍️ " + s.s + " 考試中"; 
+                bg = "var(--md-coffee-container)"; color = "var(--md-on-coffee-container)"; 
+                activeIdx = i; 
+                foundNext = true; 
+            } 
+            else if (cur < t[0] && !foundNext) { 
+                txt = "⏳ 準備中：" + s.s; 
+                bg = "var(--md-primary-container)"; color = "var(--md-on-primary-container)"; 
+                foundNext = true; 
+            }
+        });
+        
+        badge.textContent = txt; badge.style.backgroundColor = bg; badge.style.color = color;
+        appData.schedule.forEach((_, i) => { const row = document.getElementById(`exam-row-${i}`); if (row) row.className = (i === activeIdx) ? 'active-exam' : ''; });
+    }
+
+    function toggleModal(open) {
+        const modal = document.getElementById('settingsModal');
+        if (open) {
+            document.getElementById('input-school').value = appData.school;
+            document.getElementById('input-class').value = appData.className;
+            document.getElementById('input-reminders').value = appData.reminders;
+            document.getElementById('input-reminders-size').value = appData.remindersFontSize || 1.5;
+            document.getElementById('input-reminders-align').value = appData.remindersAlign || "left";
+            document.getElementById('input-reminders-columns').value = appData.remindersCols || "auto";
+            
+            document.getElementById('grid-rows').value = appData.grid.r;
+            document.getElementById('grid-cols').value = appData.grid.c;
+            
+            renderLayoutDesigner();
+            renderScheduleEditor();
+            modal.classList.add('show');
+        } else { modal.classList.remove('show'); }
+    }
+
+    function renderLayoutDesigner() {
+        const rowInput = document.getElementById('grid-rows');
+        const colInput = document.getElementById('grid-cols');
+        const gridSize = clampGridSize({ r: rowInput.value, c: colInput.value }, appData.grid);
+        rowInput.value = gridSize.r;
+        colInput.value = gridSize.c;
+        const r = gridSize.r;
+        const c = gridSize.c;
+        const container = document.getElementById('layout-designer');
+        container.style.gridTemplateColumns = `repeat(${c}, minmax(30px, 1fr))`; 
+        container.innerHTML = '';
+        const targetLen = r * c;
+        
+        while(appData.seats.length < targetLen) appData.seats.push({active:false, label:'', status:0});
+        
+        for(let i=0; i < targetLen; i++) {
+            const cell = document.createElement('div');
+            cell.style = "aspect-ratio:1; border-radius:8px; cursor:pointer; background:var(--md-outline); transition:0.2s; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);";
+            if(appData.seats[i].active) cell.style.background = "var(--md-primary)";
+            
+            cell.onclick = () => { 
+                appData.seats[i].active = !appData.seats[i].active; 
+                cell.style.background = appData.seats[i].active ? "var(--md-primary)" : "var(--md-outline)"; 
+                cell.style.transform = "scale(0.8)"; setTimeout(() => cell.style.transform = "scale(1)", 150);
+            };
+            container.appendChild(cell);
+        }
+    }
+
+    function autoFillNumbers() {
+        let count = 1; 
+        appData.seats.forEach(s => { if(s.active) { s.label = (count++).toString(); }});
+        renderLayoutDesigner();
+    }
+
+    function renderScheduleEditor() {
+        const container = document.getElementById('schedule-editor');
+        container.replaceChildren();
+        appData.schedule.forEach(s => container.appendChild(createScheduleEditorRow(s.t, s.s)));
+    }
+
+    function createScheduleEditorRow(time = '', subject = '') {
+        const row = document.createElement('div');
+        row.className = 'schedule-row';
+        const splitTime = splitScheduleTimeRange(time);
+
+        const startInput = document.createElement('input');
+        startInput.type = 'text';
+        startInput.inputMode = 'numeric';
+        startInput.value = splitTime.start;
+        startInput.className = 'm3-input time-input';
+        startInput.placeholder = '開始 0835';
+
+        const endInput = document.createElement('input');
+        endInput.type = 'text';
+        endInput.inputMode = 'numeric';
+        endInput.value = splitTime.end;
+        endInput.className = 'm3-input time-input';
+        endInput.placeholder = '結束 0925';
+
+        const subjectInput = document.createElement('input');
+        subjectInput.type = 'text';
+        subjectInput.value = subject;
+        subjectInput.className = 'm3-input subject-input';
+        subjectInput.placeholder = '科目';
+
+        const removeBtn = createTextElement('button', '✕', 'icon-btn');
+        removeBtn.type = 'button';
+        removeBtn.addEventListener('click', () => row.remove());
+
+        row.append(startInput, endInput, subjectInput, removeBtn);
+        return row;
+    }
+
+    function addScheduleRow() {
+        document.getElementById('schedule-editor').appendChild(createScheduleEditorRow());
+        const editor = document.getElementById('schedule-editor');
+        setTimeout(() => editor.scrollTop = editor.scrollHeight, 50);
+    }
+
+    function saveAll() {
+        appData.school = document.getElementById('input-school').value;
+        appData.className = document.getElementById('input-class').value;
+        appData.reminders = document.getElementById('input-reminders').value;
+        appData.remindersFontSize = parseFloat(document.getElementById('input-reminders-size').value) || 1.5;
+        appData.remindersAlign = document.getElementById('input-reminders-align').value;
+        appData.remindersCols = document.getElementById('input-reminders-columns').value;
+        
+        appData.grid = clampGridSize({
+            r: document.getElementById('grid-rows').value,
+            c: document.getElementById('grid-cols').value
+        }, appData.grid);
+        ensureSeatCount();
+
+        const rows = document.querySelectorAll('#schedule-editor .schedule-row');
+        appData.schedule = Array.from(rows).map(r => { 
+            const ins = r.querySelectorAll('input'); 
+            return { t: buildScheduleTimeRange(ins[0].value, ins[1].value), s: ins[2].value }; 
+        });
+        
+        saveToLocal(); updateUI(); toggleModal(false);
+    }
+
+    init();
+</script>
+</body>
+</html>
